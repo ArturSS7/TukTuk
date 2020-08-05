@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/miekg/dns"
 	"log"
+	"regexp"
 	"sync"
 	"time"
 )
@@ -60,7 +61,7 @@ func startServer() {
 }
 
 var records = map[string]string{
-	"*.tt.pwn.bar": "127.0.0.1",
+	"*.tt.pwn.bar.": "127.0.0.1",
 }
 
 func HandlerTCP(w dns.ResponseWriter, req *dns.Msg) {
@@ -75,16 +76,44 @@ func Handler(w dns.ResponseWriter, req *dns.Msg) {
 	defer w.Close()
 
 	question := req.Question[0]
-	fmt.Println(question.Name)
-	fmt.Println(question.Qclass)
-	fmt.Println(question.Qtype)
-	resp, err := Lookup(req)
+	matched, err := regexp.MatchString(`^*.tt.pwn.bar.`, "seafood")
 	if err != nil {
-		resp = &dns.Msg{}
-		resp.SetRcode(req, dns.RcodeServerFailure)
-		log.Println("fail", question.Name)
+		log.Println(err)
 	}
-	w.WriteMsg(resp)
+	if matched {
+		m := new(dns.Msg)
+		m.SetReply(req)
+		m.Compress = false
+		switch req.Opcode {
+		case dns.OpcodeQuery:
+			answerQuery(m)
+		}
+		w.WriteMsg(m)
+	} else {
+		resp, err := Lookup(req)
+		if err != nil {
+			resp = &dns.Msg{}
+			resp.SetRcode(req, dns.RcodeServerFailure)
+			log.Println("fail", question.Name)
+		}
+		w.WriteMsg(resp)
+	}
+}
+
+func answerQuery(m *dns.Msg) {
+	for _, q := range m.Question {
+		switch q.Qtype {
+		case dns.TypeA:
+			log.Printf("Query for %s\n", q.Name)
+			ip := records["*.tt.pwn.bar."]
+			if ip != "" {
+				rr, err := dns.NewRR(fmt.Sprintf("%s A %s", q.Name, ip))
+				if err == nil {
+					m.Answer = append(m.Answer, rr)
+				}
+			}
+		}
+	}
 }
 
 func Lookup(req *dns.Msg) (*dns.Msg, error) {
