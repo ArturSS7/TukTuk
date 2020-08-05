@@ -10,8 +10,8 @@ import (
 	_ "github.com/lib/pq"
 )
 
-//BotStart function start the bot and send message
-func BotStart(token string, ChatID int64, tableName string, id int, db *sql.DB) {
+//BotSendAlert function start the bot and send message
+func BotSendAlert(token string, ChatID int64, tableName string, id int, db *sql.DB) {
 	bot, err := tgbotapi.NewBotAPI(token)
 	if err != nil {
 		log.Panic(err)
@@ -29,6 +29,7 @@ type content struct {
 	time      string
 }
 
+//Чтение из бд по имени таблице(протоколу) и id записи
 func readDB(tableName string, id int, db *sql.DB) string {
 	str := "SELECT data, source_ip, time from " + tableName + " WHERE " + strconv.Itoa(id) + "= id"
 	rows, err := db.Query(str)
@@ -37,16 +38,15 @@ func readDB(tableName string, id int, db *sql.DB) string {
 	if err != nil {
 		panic(err)
 	}
-	for rows.Next() {
-		p := content{}
-		err := rows.Scan(&p.data, &p.source_ip, &p.time)
-		if err != nil {
-			fmt.Println(err)
-			continue
-		}
+	rows.Next()
+	p := content{}
+	err = rows.Scan(&p.data, &p.source_ip, &p.time)
+	if err != nil {
+		fmt.Println(err)
+
+	} else {
 		contents = append(contents, p)
 	}
-
 	return contents[0].data + " " + contents[0].source_ip + " " + contents[0].time
 
 }
