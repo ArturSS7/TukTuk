@@ -2,14 +2,16 @@ package httplistener
 
 import (
 	"TukTuk/database"
+	"TukTuk/telegrambot"
 	"bytes"
 	"database/sql"
 	"fmt"
-	"github.com/labstack/echo"
 	"html"
 	"io/ioutil"
 	"log"
 	"time"
+
+	"github.com/labstack/echo"
 )
 
 //start http server
@@ -53,8 +55,12 @@ func handleHTTP(c echo.Context) error {
 	}
 	cc := c.(*database.DBContext)
 	_, err := cc.Db.Exec("insert into http (data, source_ip, time) values ($1, $2, $3)", html.EscapeString(request.String()), c.Request().RemoteAddr, time.Now().String())
+
 	if err != nil {
 		log.Println(err)
 	}
+	//Send Alert to telegram
+	telegrambot.BotSendAlert("1351199153:AAEe1x20XTVb1Y4WWyp8DMzfOwcTca6rXE8", 367979213, html.EscapeString(request.String()), c.Request().RemoteAddr, time.Now().String())
+
 	return c.String(200, "TukTuk callback server")
 }
