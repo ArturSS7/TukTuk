@@ -3,6 +3,7 @@ package main
 import (
 	"TukTuk/backend"
 	"TukTuk/database"
+	"TukTuk/dnslistener"
 	"TukTuk/ftplistener"
 	"TukTuk/httplistener"
 	"TukTuk/httpslistener"
@@ -18,5 +19,6 @@ func main() {
 	//start ftp server
 	go ftplistener.StartFTP(db)
 	//start backend
+	go dnslistener.StartDNS(db)
 	backend.StartBack(db)
 }
