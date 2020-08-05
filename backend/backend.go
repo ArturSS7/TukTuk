@@ -28,6 +28,7 @@ func StartBack(db *sql.DB) {
 		}
 	})
 	e.GET("/api/http", getHTTP)
+	e.GET("/api/ftp", getFTP)
 	e.Logger.Fatal(e.Start(":1234"))
 }
 
@@ -36,6 +37,29 @@ func getHTTP(c echo.Context) error {
 	limit := c.FormValue("limit")
 	cc := c.(*database.DBContext)
 	rows, err := cc.Db.Query("select data, source_ip, time from http order by id limit $1", limit)
+	if err != nil {
+		log.Println(err)
+		er := &Result{Error: "true"}
+		return c.JSON(200, er)
+	}
+	rr := make([]Request, 0)
+	for rows.Next() {
+		r := Request{}
+		err := rows.Scan(&r.Data, &r.SourceIp, &r.Time)
+		if err != nil {
+			log.Println(err)
+			er := &Result{Error: "true"}
+			return c.JSON(200, er)
+		}
+		rr = append(rr, r)
+	}
+	return c.JSON(200, rr)
+}
+
+func getFTP(c echo.Context) error {
+	limit := c.FormValue("limit")
+	cc := c.(*database.DBContext)
+	rows, err := cc.Db.Query("select data, source_ip, time from ftp order by id limit $1", limit)
 	if err != nil {
 		log.Println(err)
 		er := &Result{Error: "true"}
