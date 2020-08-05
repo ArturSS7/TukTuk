@@ -18,7 +18,7 @@ const (
 
 //страт нашего фтп сервера
 func StartFTP(db *sql.DB) {
-	server := fmt.Sprintf(":%d", 22)
+	server := fmt.Sprintf(":%d", 21)
 	listener, err := net.Listen("tcp", server)
 	if err != nil {
 		log.Fatal(err)
