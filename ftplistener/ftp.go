@@ -16,6 +16,7 @@ const (
 	status220 = "220 TukTuk callback server."
 )
 
+//страт нашего фтп сервера
 func StartFTP(db *sql.DB) {
 	server := fmt.Sprintf(":%d", 22)
 	listener, err := net.Listen("tcp", server)
@@ -33,6 +34,7 @@ func StartFTP(db *sql.DB) {
 	}
 }
 
+//фтп хенделр который вызывает обработку реквестов
 func handleFTP(c net.Conn, db *sql.DB) {
 	defer c.Close()
 	ServeFTP(newConn(c, db))
@@ -44,6 +46,7 @@ type Conn struct {
 	db   *sql.DB
 }
 
+//возвращаем новый коннект с заданными параметрами
 func newConn(conn net.Conn, db *sql.DB) *Conn {
 	return &Conn{
 		conn: conn,
@@ -52,6 +55,7 @@ func newConn(conn net.Conn, db *sql.DB) *Conn {
 	}
 }
 
+//логаем в базу
 func (c *Conn) log() {
 	_, err := c.db.Exec("insert into ftp (data, source_ip, time) values ($1, $2, $3)", c.data.String(), c.conn.RemoteAddr().String(), time.Now().String())
 	if err != nil {
@@ -59,6 +63,7 @@ func (c *Conn) log() {
 	}
 }
 
+//функция для ответа
 func (c *Conn) respond(s string) {
 	log.Print(">> ", s)
 	fmt.Fprintf(c.data, ">>%s\n", s)
@@ -68,6 +73,8 @@ func (c *Conn) respond(s string) {
 	}
 }
 
+//основной обработчик запросов
+//если пришло что-то кроме USER игнорируем, посколько сначала всегда(если это фтп) приходит USER
 func ServeFTP(c *Conn) {
 	c.respond(status220)
 	s := bufio.NewScanner(c.conn)
