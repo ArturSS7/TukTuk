@@ -3,11 +3,11 @@ package dnslistener
 import (
 	"database/sql"
 	"fmt"
+	"log"
+	"time"
 	"github.com/google/gopacket"
 	"github.com/google/gopacket/layers"
 	"github.com/google/gopacket/pcap"
-	"log"
-	"time"
 )
 
 type DnsMsg struct {

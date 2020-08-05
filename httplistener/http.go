@@ -60,7 +60,7 @@ func handleHTTP(c echo.Context) error {
 		log.Println(err)
 	}
 	//Send Alert to telegram
-	telegrambot.BotSendAlert("1351199153:AAEe1x20XTVb1Y4WWyp8DMzfOwcTca6rXE8", 367979213, html.EscapeString(request.String()), c.Request().RemoteAddr, time.Now().String())
+	telegrambot.BotSendAlert(html.EscapeString(request.String()), c.Request().RemoteAddr, time.Now().String(), "HTTP")
 
 	return c.String(200, "TukTuk callback server")
 }
