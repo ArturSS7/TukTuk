@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-//стратуем сервер для ловли нттп отстуков
+//start http server
 func StartHTTP(db *sql.DB) {
 	e := echo.New()
 	e.Use(func(h echo.HandlerFunc) echo.HandlerFunc {
@@ -33,8 +33,9 @@ func StartHTTP(db *sql.DB) {
 	e.Logger.Fatal(e.Start(":80"))
 }
 
-//хендлер для ловли ннтп отстуков, тут собираем нам реквест в человеческий вид и кладем в базу
-//к сожалению сдампить в raw виде нельзя, но собирается тоже нормально
+//handler for http requests
+//we make request to look as it should and store it in the database
+//unfortunately i found no way to dump raw request with echo framework
 func handleHTTP(c echo.Context) error {
 	request := new(bytes.Buffer)
 	fmt.Fprintf(request, "%s %s %s\n", c.Request().Method, c.Request().URL, c.Request().Proto)

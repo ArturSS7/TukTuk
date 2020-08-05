@@ -13,6 +13,7 @@ import (
 	"time"
 )
 
+//same as https, just added cert
 func StartHTTPS(db *sql.DB) {
 	e := echo.New()
 	e.Use(func(h echo.HandlerFunc) echo.HandlerFunc {

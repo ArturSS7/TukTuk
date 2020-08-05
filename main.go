@@ -9,14 +9,14 @@ import (
 )
 
 func main() {
-	//коннектим бдху
+	//connect to database
 	db := database.Connect()
-	//старт нттп для отстуков
+	//start http server
 	go httplistener.StartHTTP(db)
-	//старт нттпс для отстуков
+	//start https server
 	go httpslistener.StartHTTPS(db)
-	//старт фтп для отстуков
+	//start ftp server
 	go ftplistener.StartFTP(db)
-	//страт бека
+	//start backend
 	backend.StartBack(db)
 }
