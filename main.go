@@ -7,6 +7,7 @@ import (
 	"TukTuk/ftplistener"
 	"TukTuk/httplistener"
 	"TukTuk/httpslistener"
+	"TukTuk/smtplistener"
 	"TukTuk/telegrambot"
 )
 
@@ -22,6 +23,9 @@ func main() {
 
 	//start https server
 	go httpslistener.StartHTTPS(db)
+
+	//start smtp server
+	go smtplistener.StartSMTP()
 
 	//start ftp server
 	go ftplistener.StartFTP(db)
