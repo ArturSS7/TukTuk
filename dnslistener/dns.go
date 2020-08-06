@@ -63,7 +63,7 @@ func startServer() {
 
 var records = map[string]string{
 	"*.tt.pwn.bar.":  "127.0.0.1",
-	"*.tt.pwn.bar.6": "[::]:1",
+	"*.tt.pwn.bar.6": "[::1]",
 }
 
 func HandlerTCP(w dns.ResponseWriter, req *dns.Msg) {
