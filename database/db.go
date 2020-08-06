@@ -12,6 +12,8 @@ type DBContext struct {
 	Db *sql.DB
 }
 
+var DNSDB *sql.DB
+
 func Connect() *sql.DB {
 	db, err := sql.Open("postgres", "postgres://tuk:ZuppaSecurePwd@localhost/tuktuk?sslmode=disable")
 	if err != nil {
@@ -22,5 +24,6 @@ func Connect() *sql.DB {
 		panic(err)
 	}
 	fmt.Println("Connected")
+	DNSDB = db
 	return db
 }
