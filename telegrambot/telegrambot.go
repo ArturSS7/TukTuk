@@ -24,13 +24,12 @@ type Option struct {
 	LenghtAlert string
 }
 
-var SettingBot Option
-
+//BotStart Start Telegram Bot
 func BotStart() {
-	ParseConfig()
+	parseConfig()
 }
 
-// 0 - Short, 1 - Long, Default = Short
+var SettingBot Option
 
 func BotSendAlert(data, source_ip, time, ProtocolName string) {
 	bot, err := tgbotapi.NewBotAPI(SettingBot.Token)
@@ -42,8 +41,7 @@ func BotSendAlert(data, source_ip, time, ProtocolName string) {
 
 	log.Printf("Authorized on account %s", bot.Self.UserName)
 
-	//responce := tgbotapi.NewMessage(opt.ChatID, data+" "+source_ip+" "+time)
-	responce := tgbotapi.NewMessage(SettingBot.ChatID, MessageFormation(_cont, ProtocolName))
+	responce := tgbotapi.NewMessage(SettingBot.ChatID, messageFormation(_cont, ProtocolName))
 	bot.Send(responce)
 
 }
@@ -77,10 +75,10 @@ func readDB(tableName string, id int, db *sql.DB) string {
 	} else {
 		contents = append(contents, p)
 	}
-	return MessageFormation(contents[0], tableName)
+	return messageFormation(contents[0], tableName)
 }
 
-func MessageFormation(ContentFormation content, ProtocolName string) string {
+func messageFormation(ContentFormation content, ProtocolName string) string {
 
 	if SettingBot.LenghtAlert == "Long" {
 		return ContentFormation.data + "\n" + parsePort(ContentFormation.source_ip) + "\n" + ContentFormation.time
@@ -93,7 +91,7 @@ func parsePort(str string) string {
 	return re.Split(str, -1)[0]
 }
 
-func ReadConfig() []byte {
+func readConfig() []byte {
 	var fileData []byte
 	file, err := os.Open("telegrambot/Config.json")
 	if err != nil {
@@ -115,12 +113,11 @@ func ReadConfig() []byte {
 	return fileData
 }
 
-func ParseConfig() {
-	b := ReadConfig()
+func parseConfig() {
+	b := readConfig()
 
 	err := json.Unmarshal(b, &SettingBot)
 	if err != nil {
 		panic(err)
 	}
-	fmt.Print(string(SettingBot.Token))
 }
