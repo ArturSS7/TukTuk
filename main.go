@@ -27,7 +27,7 @@ func main() {
 	go ftplistener.StartFTP(db)
 
 	//start dns server
-	go dnslistener.StartDNS(db)
+	go dnslistener.StartDNS()
 
 	//start backend
 	backend.StartBack(db)
