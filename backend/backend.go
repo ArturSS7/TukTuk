@@ -41,6 +41,8 @@ func getRequests(c echo.Context) error {
 		table = "ftp"
 	case "https":
 		table = "https"
+	case "dns":
+		table = "dns"
 	default:
 		return c.String(404, "Not Found")
 	}

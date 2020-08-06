@@ -1,10 +1,11 @@
 package dnslistener
 
 import (
-	"database/sql"
+	"TukTuk/database"
 	"errors"
 	"fmt"
 	"github.com/miekg/dns"
+	"html"
 	"log"
 	"regexp"
 	"sync"
@@ -23,7 +24,7 @@ type DnsMsg struct {
 	DnsOpCode       string
 }
 
-func StartDNS(db *sql.DB) {
+func StartDNS() {
 	startServer()
 }
 
@@ -72,11 +73,17 @@ func HandlerUDP(w dns.ResponseWriter, req *dns.Msg) {
 	Handler(w, req)
 }
 
+func logDNS(query string, sourceIp string) {
+	_, err := database.DNSDB.Query("insert into dns (data, source_ip, time) values ($1, $2, $3)", html.EscapeString(query), sourceIp, time.Now().String())
+	if err != nil {
+		log.Println(err)
+	}
+}
+
 func Handler(w dns.ResponseWriter, req *dns.Msg) {
 	defer w.Close()
-
 	question := req.Question[0]
-	matched, err := regexp.MatchString(`^*.tt.pwn.bar.`, "seafood")
+	matched, err := regexp.MatchString(`^*.tt.pwn.bar.`, question.Name)
 	if err != nil {
 		log.Println(err)
 	}
@@ -86,6 +93,7 @@ func Handler(w dns.ResponseWriter, req *dns.Msg) {
 		m.Compress = false
 		switch req.Opcode {
 		case dns.OpcodeQuery:
+			logDNS(req.String(), w.RemoteAddr().String())
 			answerQuery(m)
 		}
 		w.WriteMsg(m)
