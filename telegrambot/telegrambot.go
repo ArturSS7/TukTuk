@@ -8,7 +8,6 @@ import (
 	"log"
 	"os"
 	"regexp"
-	"strconv"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	_ "github.com/lib/pq"
@@ -63,8 +62,7 @@ func BotSendAlert_BD(tableName string, id int, db *sql.DB) {
 }
 
 func readDB(tableName string, id int, db *sql.DB) string {
-	str := "SELECT data, source_ip, time from " + tableName + " WHERE " + strconv.Itoa(id) + "= id"
-	rows, err := db.Query(str)
+	rows, err := db.Query("SELECT data, source_ip, time from $1 WHERE $2= id", tableName, id)
 	defer rows.Close()
 	contents := []content{}
 	if err != nil {
