@@ -5,6 +5,8 @@ import (
 	"database/sql"
 	"github.com/labstack/echo"
 	"log"
+	"math/rand"
+	"time"
 )
 
 type Request struct {
@@ -28,6 +30,7 @@ func StartBack(db *sql.DB) {
 		}
 	})
 	e.GET("/api/:proto", getRequests)
+	e.GET("/api/dns/new", generateDomain)
 	e.Logger.Fatal(e.Start(":1234"))
 }
 
@@ -66,4 +69,32 @@ func getRequests(c echo.Context) error {
 		rr = append(rr, r)
 	}
 	return c.JSON(200, rr)
+}
+
+type Domain struct {
+	Data string `json:"domain"`
+}
+
+func generateDomain(c echo.Context) error {
+	d := &Domain{}
+	d.Data = RandStringBytes(8) + ".tt.pwn.bar"
+	cc := c.(*database.DBContext)
+	_, err := cc.Db.Exec("insert into dns_domains (domain) values ($1)", d.Data+".")
+	if err != nil {
+		log.Println(err)
+		er := &Result{Error: "true"}
+		return c.JSON(200, er)
+	}
+	return c.JSON(200, d)
+}
+
+const letterBytes = "abcdefghijklmnopqrstuvwxyz"
+
+func RandStringBytes(n int) string {
+	rand.Seed(time.Now().Unix())
+	b := make([]byte, n)
+	for i := range b {
+		b[i] = letterBytes[rand.Intn(len(letterBytes))]
+	}
+	return string(b)
 }

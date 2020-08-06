@@ -94,7 +94,20 @@ func Handler(w dns.ResponseWriter, req *dns.Msg) {
 		m.Compress = false
 		switch req.Opcode {
 		case dns.OpcodeQuery:
-			logDNS(req.String(), w.RemoteAddr().String())
+			var result bool
+			rows, err := database.DNSDB.Query("select exists(select domain from dns_domains where domain = $1)", question.Name)
+			if err != nil {
+				log.Println(err)
+			}
+			for rows.Next() {
+				err = rows.Scan(&result)
+				if err != nil {
+					log.Println(err)
+				}
+			}
+			if result {
+				logDNS(req.String(), w.RemoteAddr().String())
+			}
 			answerQuery(m)
 		}
 		w.WriteMsg(m)
