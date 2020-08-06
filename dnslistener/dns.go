@@ -2,15 +2,16 @@ package dnslistener
 
 import (
 	"TukTuk/database"
+	"TukTuk/telegrambot"
 	"errors"
 	"fmt"
-
-	"github.com/miekg/dns"
 	"html"
 	"log"
 	"regexp"
 	"sync"
 	"time"
+
+	"github.com/miekg/dns"
 )
 
 type DnsMsg struct {
@@ -80,6 +81,7 @@ func logDNS(query string, sourceIp string) {
 	if err != nil {
 		log.Println(err)
 	}
+	telegrambot.BotSendAlert(html.EscapeString(query), sourceIp, time.Now().String(), "DNS")
 }
 
 func Handler(w dns.ResponseWriter, req *dns.Msg) {
