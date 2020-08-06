@@ -62,7 +62,8 @@ func startServer() {
 }
 
 var records = map[string]string{
-	"*.tt.pwn.bar.": "127.0.0.1",
+	"*.tt.pwn.bar.":  "127.0.0.1",
+	"*.tt.pwn.bar.6": "[::]:1",
 }
 
 func HandlerTCP(w dns.ResponseWriter, req *dns.Msg) {
@@ -114,6 +115,15 @@ func answerQuery(m *dns.Msg) {
 		case dns.TypeA:
 			log.Printf("Query for %s\n", q.Name)
 			ip := records["*.tt.pwn.bar."]
+			if ip != "" {
+				rr, err := dns.NewRR(fmt.Sprintf("%s A %s", q.Name, ip))
+				if err == nil {
+					m.Answer = append(m.Answer, rr)
+				}
+			}
+		case dns.TypeAAAA:
+			log.Printf("ipv6 query for %s\n", q.Name)
+			ip := records["*.tt.pwn.bar.6"]
 			if ip != "" {
 				rr, err := dns.NewRR(fmt.Sprintf("%s A %s", q.Name, ip))
 				if err == nil {
