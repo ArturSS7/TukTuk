@@ -2,8 +2,11 @@ package telegrambot
 
 import (
 	"database/sql"
+	"encoding/json"
 	"fmt"
+	"io"
 	"log"
+	"os"
 	"regexp"
 	"strconv"
 
@@ -17,33 +20,21 @@ type content struct {
 	time      string
 }
 type Option struct {
-	token  string
-	ChatID int64
+	Token       string
+	ChatID      int64
+	LenghtAlert string
 }
 
-var opt Option
+var SettingBot Option
 
-func BotStart(_token string, _CharID int64) {
-	opt = Option{_token, _CharID}
+func BotStart() {
+	ParseConfig()
 }
 
 // 0 - Short, 1 - Long, Default = Short
-func GetShort() {
-	Setting = Short
-}
-func GetLong() {
-	Setting = Long
-}
-
-const (
-	Short = iota
-	Long
-)
-
-var Setting int = Short
 
 func BotSendAlert(data, source_ip, time, ProtocolName string) {
-	bot, err := tgbotapi.NewBotAPI(opt.token)
+	bot, err := tgbotapi.NewBotAPI(SettingBot.Token)
 	if err != nil {
 		log.Panic(err)
 	}
@@ -53,20 +44,20 @@ func BotSendAlert(data, source_ip, time, ProtocolName string) {
 	log.Printf("Authorized on account %s", bot.Self.UserName)
 
 	//responce := tgbotapi.NewMessage(opt.ChatID, data+" "+source_ip+" "+time)
-	responce := tgbotapi.NewMessage(opt.ChatID, MessageFormation(_cont, ProtocolName))
+	responce := tgbotapi.NewMessage(SettingBot.ChatID, MessageFormation(_cont, ProtocolName))
 	bot.Send(responce)
 
 }
 
 //BotSendAlert_BD function start the bot and sends the message read from the database
 func BotSendAlert_BD(tableName string, id int, db *sql.DB) {
-	bot, err := tgbotapi.NewBotAPI(opt.token)
+	bot, err := tgbotapi.NewBotAPI(SettingBot.Token)
 	if err != nil {
 		log.Panic(err)
 	}
 
 	bot.Debug = true
-	responce := tgbotapi.NewMessage(opt.ChatID, readDB(tableName, id, db))
+	responce := tgbotapi.NewMessage(SettingBot.ChatID, readDB(tableName, id, db))
 	bot.Send(responce)
 
 }
@@ -92,14 +83,46 @@ func readDB(tableName string, id int, db *sql.DB) string {
 }
 
 func MessageFormation(ContentFormation content, ProtocolName string) string {
-	if Setting == Short {
-		return "Catched " + ProtocolName + " request from IP: " + parsePort(ContentFormation.source_ip)
-	} else {
+
+	if SettingBot.LenghtAlert == "Long" {
 		return ContentFormation.data + "\n" + parsePort(ContentFormation.source_ip) + "\n" + ContentFormation.time
 	}
+	return "Catched " + ProtocolName + " request from IP: " + parsePort(ContentFormation.source_ip)
 }
 
 func parsePort(str string) string {
 	re := regexp.MustCompile(":")
 	return re.Split(str, -1)[0]
+}
+
+func ReadConfig() []byte {
+	var fileData []byte
+	file, err := os.Open("telegrambot/Config.json")
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	defer file.Close()
+	data := make([]byte, 64)
+
+	for {
+		n, err := file.Read(data)
+		if err == io.EOF {
+			break
+		}
+
+		fileData = append(fileData, data[:n]...)
+
+	}
+	return fileData
+}
+
+func ParseConfig() {
+	b := ReadConfig()
+
+	err := json.Unmarshal(b, &SettingBot)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Print(string(SettingBot.Token))
 }

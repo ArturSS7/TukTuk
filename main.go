@@ -15,7 +15,7 @@ func main() {
 	db := database.Connect()
 
 	//start telegram bot
-	telegrambot.BotStart("1351199153:AAEe1x20XTVb1Y4WWyp8DMzfOwcTca6rXE8", 367979213)
+	telegrambot.BotStart()
 
 	//start http server
 	go httplistener.StartHTTP(db)
