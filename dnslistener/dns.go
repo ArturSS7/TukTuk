@@ -125,7 +125,7 @@ func answerQuery(m *dns.Msg) {
 			log.Printf("ipv6 query for %s\n", q.Name)
 			ip := records["*.tt.pwn.bar.6"]
 			if ip != "" {
-				rr, err := dns.NewRR(fmt.Sprintf("%s A %s", q.Name, ip))
+				rr, err := dns.NewRR(fmt.Sprintf("%s AAAA %s", q.Name, ip))
 				if err == nil {
 					m.Answer = append(m.Answer, rr)
 				}
