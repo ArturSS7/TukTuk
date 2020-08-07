@@ -7,7 +7,6 @@ import (
 	"io"
 	"log"
 	"os"
-	"regexp"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	_ "github.com/lib/pq"
@@ -81,15 +80,17 @@ func readDB(tableName string, id int, db *sql.DB) string {
 func messageFormation(ContentFormation content, ProtocolName string) string {
 
 	if SettingBot.LenghtAlert == "Long" {
-		return ContentFormation.data + "\n" + parsePort(ContentFormation.source_ip) + "\n" + ContentFormation.time
+		//return ContentFormation.data + "\n" + parsePort(ContentFormation.source_ip) + "\n" + ContentFormation.time
+		return ContentFormation.data + "\n" + ContentFormation.source_ip + "\n" + ContentFormation.time
 	}
-	return "Catched " + ProtocolName + " request from IP: " + parsePort(ContentFormation.source_ip)
+	//	return "Catched " + ProtocolName + " request from IP: " + parsePort(ContentFormation.source_ip)
+	return "Catched " + ProtocolName + " request from IP: " + ContentFormation.source_ip
 }
 
-func parsePort(str string) string {
-	re := regexp.MustCompile(":")
-	return re.Split(str, -1)[0]
-}
+// func parsePort(str string) string {
+// 	re := regexp.MustCompile(":")
+// 	return re.Split(str, -1)[0]
+// }
 
 func readConfig() []byte {
 	var fileData []byte
