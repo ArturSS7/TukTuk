@@ -6,6 +6,7 @@ import (
 	"bytes"
 	"database/sql"
 	"fmt"
+	"html"
 	"log"
 	"net"
 	"strings"
@@ -57,7 +58,7 @@ func newConn(conn net.Conn, db *sql.DB) *Conn {
 
 //logging to database
 func (c *Conn) log() {
-	_, err := c.db.Exec("insert into ftp (data, source_ip, time) values ($1, $2, $3)", c.data.String(), c.conn.RemoteAddr().String(), time.Now().String())
+	_, err := c.db.Exec("insert into ftp (data, source_ip, time) values ($1, $2, $3)", html.EscapeString(c.data.String()), c.conn.RemoteAddr().String(), time.Now().String())
 	if err != nil {
 		log.Println(err)
 	}

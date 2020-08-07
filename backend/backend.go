@@ -29,12 +29,15 @@ func StartBack(db *sql.DB) {
 			return h(cc)
 		}
 	})
+	e.File("/", "frontend/index.html")
+	e.Static("/static", "frontend/static/")
 	e.GET("/api/:proto", getRequests)
 	e.GET("/api/dns/new", generateDomain)
 	e.Logger.Fatal(e.Start(":1234"))
 }
 
 //handler for getting requests from database
+
 func getRequests(c echo.Context) error {
 	table := ""
 	switch c.Param("proto") {
