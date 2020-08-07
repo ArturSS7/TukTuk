@@ -1,6 +1,8 @@
 package smtplistener
 
 import (
+	"TukTuk/telegrambot"
+	"database/sql"
 	"errors"
 	"io"
 	"io/ioutil"
@@ -54,7 +56,7 @@ func (s *Session) Logout() error {
 	return nil
 }
 
-func StartSMTP() {
+func StartSMTP(db *sql.DB) {
 	be := &Backend{}
 
 	s := smtp.NewServer(be)
@@ -66,9 +68,21 @@ func StartSMTP() {
 	s.MaxMessageBytes = 1024 * 1024
 	s.MaxRecipients = 50
 	s.AllowInsecureAuth = true
-
+	//var RemoteAddr string
 	log.Println("Starting server at", s.Addr)
-	if err := s.ListenAndServe(); err != nil {
+	err, RemoteAddr := s.ListenAndServe()
+	logSMTP(db, RemoteAddr)
+	if err != nil {
 		log.Fatal(err)
 	}
+}
+
+func logSMTP(db *sql.DB, RemoteAddr string) {
+	_, err := db.Exec("insert into smtp (data, source_ip, time) values ($1, $2, $3)", "", RemoteAddr, time.Now().String())
+
+	//	result.LastInsertId()
+	if err != nil {
+		log.Fatal(err)
+	}
+	telegrambot.BotSendAlert("", RemoteAddr, time.Now().String(), "SMTP")
 }

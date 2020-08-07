@@ -25,13 +25,15 @@ func main() {
 	go httpslistener.StartHTTPS(db)
 
 	//start smtp server
-	go smtplistener.StartSMTP()
 
 	//start ftp server
 	go ftplistener.StartFTP(db)
 
 	//start dns server
 	go dnslistener.StartDNS()
+
+	//start smtp server
+	go smtplistener.StartSMTP(db)
 
 	//start backend
 	backend.StartBack(db)
