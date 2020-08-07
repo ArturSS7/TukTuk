@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>TukTuk</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+</head>
+<body>
+<h1 class="text-center">{{.Table}} request</h1>
+<table class="table table-bordered">
+    <thead>
+    <tr>
+        <th scope="col">#</th>
+        <th scope="col">Request</th>
+        <th scope="col">Source IP</th>
+        <th scope="col">Time</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <th scope="row">1</th>
+        <td style="white-space:pre">{{.R.Data}}</td>
+        <td>{{.R.SourceIp}}</td>
+        <td>{{.R.Time}}</td>
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>
