@@ -3,11 +3,14 @@ package backend
 import (
 	"TukTuk/database"
 	"database/sql"
+	"github.com/gorilla/sessions"
 	"github.com/labstack/echo"
+	"github.com/labstack/echo-contrib/session"
 	"html/template"
 	"io"
 	"log"
 	"math/rand"
+	"net/http"
 	"strings"
 	"time"
 )
@@ -34,6 +37,17 @@ func (t *Template) Render(w io.Writer, name string, data interface{}, c echo.Con
 	return t.templates.ExecuteTemplate(w, name, data)
 }
 
+type user struct {
+	username string
+	password string
+}
+
+var credentials user
+
+type ErrorContext struct {
+	Error string
+}
+
 //start backend
 func StartBack(db *sql.DB) {
 	e := echo.New()
@@ -41,6 +55,8 @@ func StartBack(db *sql.DB) {
 	t := &Template{
 		templates: template.Must(template.ParseGlob("frontend/templates/*")),
 	}
+	secret := []byte("#JVb0VYu*3j!8oQmOtZK")
+	e.Use(session.Middleware(sessions.NewCookieStore(secret)))
 	e.Renderer = t
 	e.Use(func(h echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
@@ -48,11 +64,15 @@ func StartBack(db *sql.DB) {
 			return h(cc)
 		}
 	})
-	e.File("/", "frontend/index.html")
+	credentials.username = "dsec"
+	credentials.password = "tuktuk"
+	e.File("/", "frontend/index.html", loginRequired)
 	e.Static("/static", "frontend/static/")
-	e.GET("/api/:proto", getRequests)
-	e.GET("/api/request/:proto", getRequest)
-	e.GET("/api/dns/new", generateDomain)
+	e.GET("/api/:proto", getRequests, loginRequired)
+	e.GET("/api/request/:proto", getRequest, loginRequired)
+	e.GET("/api/dns/new", generateDomain, loginRequired)
+	e.GET("/login", loginPage)
+	e.POST("/login", handleLogin)
 	e.Debug = true
 	e.Logger.Fatal(e.Start(":1234"))
 }
@@ -178,4 +198,56 @@ func getRequest(c echo.Context) error {
 	}
 	er := &Result{Error: "true"}
 	return c.JSON(200, er)
+}
+
+func loginPage(c echo.Context) error {
+	if login := getLoginFromSession(c); login != "" {
+		return c.Redirect(http.StatusFound, "/")
+	} else {
+		return c.Render(http.StatusOK, "login.html", nil)
+	}
+}
+
+func handleLogin(c echo.Context) error {
+	login := c.FormValue("username")
+	password := c.FormValue("password")
+	if login == credentials.username && password == credentials.password {
+		sess := loginSession(c, login)
+		if err := sess.Save(c.Request(), c.Response()); err != nil {
+			return c.Render(http.StatusUnprocessableEntity, "login.html", "error")
+		}
+		return c.Redirect(http.StatusFound, "/")
+	} else {
+		return c.Render(http.StatusOK, "login.html",
+			ErrorContext{"Incorrect username or password"},
+		)
+	}
+}
+
+func loginSession(c echo.Context, login string) *sessions.Session {
+	sess, _ := session.Get("session", c)
+	sess.Values["username"] = login
+	sess.Options = &sessions.Options{
+		Path: "/",
+	}
+	sess.Values["username"] = login
+	return sess
+}
+
+func loginRequired(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		if login := getLoginFromSession(c); login == "" {
+			return c.Redirect(http.StatusFound, "/login")
+		}
+		return next(c)
+	}
+}
+
+func getLoginFromSession(c echo.Context) string {
+	sess, _ := session.Get("session", c)
+	login, exists := sess.Values["username"]
+	if !exists {
+		return ""
+	}
+	return login.(string)
 }
