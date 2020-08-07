@@ -6,8 +6,10 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"net"
 	"os"
 	"regexp"
+	"strconv"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	_ "github.com/lib/pq"
@@ -31,7 +33,7 @@ func BotStart() {
 
 var SettingBot Option
 
-func BotSendAlert(data, source_ip, time, ProtocolName string) {
+func BotSendAlert(data, source_ip, time, ProtocolName string, id int64) {
 	bot, err := tgbotapi.NewBotAPI(SettingBot.Token)
 	if err != nil {
 		log.Panic(err)
@@ -41,25 +43,25 @@ func BotSendAlert(data, source_ip, time, ProtocolName string) {
 
 	log.Printf("Authorized on account %s", bot.Self.UserName)
 
-	responce := tgbotapi.NewMessage(SettingBot.ChatID, messageFormation(_cont, ProtocolName))
+	responce := tgbotapi.NewMessage(SettingBot.ChatID, messageFormation(_cont, ProtocolName, id))
 	bot.Send(responce)
 
 }
 
 //BotSendAlert_BD function start the bot and sends the message read from the database
-func BotSendAlert_BD(tableName string, id int, db *sql.DB) {
+func BotSendAlert_BD(tableName string, db *sql.DB, id int64) {
 	bot, err := tgbotapi.NewBotAPI(SettingBot.Token)
 	if err != nil {
 		log.Panic(err)
 	}
 
 	bot.Debug = true
-	responce := tgbotapi.NewMessage(SettingBot.ChatID, readDB(tableName, id, db))
+	responce := tgbotapi.NewMessage(SettingBot.ChatID, readDB(tableName, db, id))
 	bot.Send(responce)
 
 }
 
-func readDB(tableName string, id int, db *sql.DB) string {
+func readDB(tableName string, db *sql.DB, id int64) string {
 	rows, err := db.Query("SELECT data, source_ip, time from $1 WHERE $2= id", tableName, id)
 	defer rows.Close()
 	contents := []content{}
@@ -75,15 +77,15 @@ func readDB(tableName string, id int, db *sql.DB) string {
 	} else {
 		contents = append(contents, p)
 	}
-	return messageFormation(contents[0], tableName)
+	return messageFormation(contents[0], tableName, id)
 }
 
-func messageFormation(ContentFormation content, ProtocolName string) string {
+func messageFormation(ContentFormation content, ProtocolName string, id int64) string {
 
 	if SettingBot.LenghtAlert == "Long" {
-		return ContentFormation.data + "\n" + parsePort(ContentFormation.source_ip) + "\n" + ContentFormation.time
+		return ContentFormation.data + "\n" + parsePort(ContentFormation.source_ip) + "\n" + ContentFormation.time + "\n\nLink: http://127.0.0.1:1234/api/request/http?id=" + strconv.Itoa(int(id))
 	}
-	return "Catched " + ProtocolName + " request from IP: " + parsePort(ContentFormation.source_ip)
+	return "Catched " + ProtocolName + " request from IP: " + parsePort(ContentFormation.source_ip) + "\n\nLink: http://127.0.0.1:1234/api/request/http?id=" + strconv.Itoa(int(id))
 }
 
 func parsePort(str string) string {
@@ -119,5 +121,19 @@ func parseConfig() {
 	err := json.Unmarshal(b, &SettingBot)
 	if err != nil {
 		panic(err)
+	}
+}
+
+func getIP() {
+	addrs, err := net.InterfaceAddrs()
+	if err != nil {
+		panic(err)
+	}
+	for _, a := range addrs {
+		if ipnet, ok := a.(*net.IPNet); ok && !ipnet.IP.IsUnspecified() {
+			if ipnet.IP.To4() != nil {
+				os.Stdout.WriteString(ipnet.IP.String() + "\n")
+			}
+		}
 	}
 }

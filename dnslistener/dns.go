@@ -77,11 +77,16 @@ func HandlerUDP(w dns.ResponseWriter, req *dns.Msg) {
 }
 
 func logDNS(query string, sourceIp string) {
-	_, err := database.DNSDB.Query("insert into dns (data, source_ip, time) values ($1, $2, $3)", html.EscapeString(query), sourceIp, time.Now().String())
+	res, err := database.DNSDB.Exec("insert into dns (data, source_ip, time) values ($1, $2, $3)", html.EscapeString(query), sourceIp, time.Now().String())
 	if err != nil {
 		log.Println(err)
 	}
-	telegrambot.BotSendAlert(html.EscapeString(query), sourceIp, time.Now().String(), "DNS")
+	id, err := res.LastInsertId()
+	if err != nil {
+		log.Println(err)
+	}
+	//Send Alert to telegram
+	telegrambot.BotSendAlert(html.EscapeString(query), sourceIp, time.Now().String(), "DNS", id)
 }
 
 func Handler(w dns.ResponseWriter, req *dns.Msg) {
