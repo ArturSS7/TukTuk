@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io"
 	"log"
-	"net"
 	"os"
 	"regexp"
 	"strconv"
@@ -81,11 +80,15 @@ func readDB(tableName string, db *sql.DB, id int64) string {
 }
 
 func messageFormation(ContentFormation content, ProtocolName string, id int64) string {
-
+	var request string
 	if SettingBot.LenghtAlert == "Long" {
-		return ContentFormation.data + "\n" + parsePort(ContentFormation.source_ip) + "\n" + ContentFormation.time + "\n\nLink: http://127.0.0.1:1234/api/request/http?id=" + strconv.Itoa(int(id))
+		request = ContentFormation.data + "\n" + parsePort(ContentFormation.source_ip) + "\n" + ContentFormation.time + "\n\nLink: http://127.0.0.1:1234/api/request/http?id=" + strconv.Itoa(int(id))
 	}
-	return "Catched " + ProtocolName + " request from IP: " + parsePort(ContentFormation.source_ip) + "\n\nLink: http://pwn.bar:1234/api/request/http?id=" + strconv.Itoa(int(id))
+	request = "Catched " + ProtocolName + " request from IP: " + parsePort(ContentFormation.source_ip) + "\n\nLink: http://pwn.bar:1234/api/request/http?id=" + strconv.Itoa(int(id))
+	if ProtocolName == "DNS" {
+		request += "\nFrom Domain: " + ParseDomain(ContentFormation.data)
+	}
+	return request
 }
 
 func parsePort(str string) string {
@@ -124,16 +127,23 @@ func parseConfig() {
 	}
 }
 
-func getIP() {
-	addrs, err := net.InterfaceAddrs()
-	if err != nil {
-		panic(err)
-	}
-	for _, a := range addrs {
-		if ipnet, ok := a.(*net.IPNet); ok && !ipnet.IP.IsUnspecified() {
-			if ipnet.IP.To4() != nil {
-				os.Stdout.WriteString(ipnet.IP.String() + "\n")
-			}
-		}
-	}
+// func getIP() {
+// 	addrs, err := net.InterfaceAddrs()
+// 	if err != nil {
+// 		panic(err)
+// 	}
+// 	for _, a := range addrs {
+// 		if ipnet, ok := a.(*net.IPNet); ok && !ipnet.IP.IsUnspecified() {
+// 			if ipnet.IP.To4() != nil {
+// 				os.Stdout.WriteString(ipnet.IP.String() + "\n")
+// 			}
+// 		}
+// 	}
+// }
+func ParseDomain(data string) string {
+	re := regexp.MustCompile(`QUESTION SECTION.+IN`)
+	data = re.FindString(data)
+	re = regexp.MustCompile(`;.+\.`)
+	return re.FindString(data)[1:]
+
 }
