@@ -82,19 +82,20 @@ func readDB(tableName string, db *sql.DB, id int64) string {
 func messageFormation(ContentFormation content, ProtocolName string, id int64) string {
 	var request string
 	if SettingBot.LenghtAlert == "Long" {
-		request = ContentFormation.data + "\n" + parsePort(ContentFormation.source_ip) + "\n" + ContentFormation.time + "\n\nLink: http://127.0.0.1:1234/api/request/http?id=" + strconv.Itoa(int(id))
+		request = ContentFormation.data + "\n" + ContentFormation.source_ip + "\n" + ContentFormation.time + "\n\nLink: http://127.0.0.1:1234/api/request/http?id=" + strconv.Itoa(int(id))
 	}
-	request = "Catched " + ProtocolName + " request from IP: " + parsePort(ContentFormation.source_ip) + "\n\nLink: http://pwn.bar:1234/api/request/http?id=" + strconv.Itoa(int(id))
+	request = "Catched " + ProtocolName + " request from IP: " + ContentFormation.source_ip + "\n\nLink: http://pwn.bar:1234/api/request/http?id=" + strconv.Itoa(int(id))
 	if ProtocolName == "DNS" {
 		request += "\nFrom Domain: " + ParseDomain(ContentFormation.data)
 	}
 	return request
+
 }
 
-func parsePort(str string) string {
-	re := regexp.MustCompile(":")
-	return re.Split(str, -1)[0]
-}
+// func parsePort(str string) string {
+// 	re := regexp.MustCompile(":")
+// 	return re.Split(str, -1)[0]
+// }
 
 func readConfig() []byte {
 	var fileData []byte
