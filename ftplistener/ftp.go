@@ -58,12 +58,14 @@ func newConn(conn net.Conn, db *sql.DB) *Conn {
 
 //logging to database
 func (c *Conn) log() {
-	_, err := c.db.Exec("insert into ftp (data, source_ip, time) values ($1, $2, $3)", html.EscapeString(c.data.String()), c.conn.RemoteAddr().String(), time.Now().String())
+	var lastInsertId int64 = 0
+	err := c.db.QueryRow("insert into ftp (data, source_ip, time) values ($1, $2, $3) RETURNING id", html.EscapeString(c.data.String()), c.conn.RemoteAddr().String(), time.Now().String()).Scan(&lastInsertId)
 	if err != nil {
 		log.Println(err)
 	}
+
 	//Send Alert to telegram
-	telegrambot.BotSendAlert(c.data.String(), c.conn.RemoteAddr().String(), time.Now().String(), "FTP")
+	telegrambot.BotSendAlert(c.data.String(), c.conn.RemoteAddr().String(), time.Now().String(), "FTP", lastInsertId)
 }
 
 func (c *Conn) respond(s string) {

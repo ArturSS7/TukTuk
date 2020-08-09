@@ -53,11 +53,14 @@ func handleHTTPS(c echo.Context) error {
 		fmt.Fprintf(request, "\n%s", bodyBytes)
 	}
 	cc := c.(*database.DBContext)
-	_, err := cc.Db.Exec("insert into https (data, source_ip, time) values ($1, $2, $3)", html.EscapeString(request.String()), c.Request().RemoteAddr, time.Now().String())
+	var lastInsertId int64 = 0
+	err := cc.Db.QueryRow("insert into https (data, source_ip, time) values ($1, $2, $3)  RETURNING id", html.EscapeString(request.String()), c.Request().RemoteAddr, time.Now().String()).Scan(&lastInsertId)
 	if err != nil {
 		log.Println(err)
 	}
+
 	//Send Alert to telegram
-	telegrambot.BotSendAlert(html.EscapeString(request.String()), c.Request().RemoteAddr, time.Now().String(), "HTTPS")
+	telegrambot.BotSendAlert(html.EscapeString(request.String()), c.Request().RemoteAddr, time.Now().String(), "HTTPS", lastInsertId)
+
 	return c.String(200, "TukTuk callback server")
 }
