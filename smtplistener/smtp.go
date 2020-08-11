@@ -71,14 +71,14 @@ func StartSMTP(db *sql.DB) {
 	//var RemoteAddr string
 	log.Println("Starting server at", s.Addr)
 	err, RemoteAddr := s.ListenAndServe()
-	logSMTP(db, RemoteAddr)
+	logSMTP(db, RemoteAddr, s.Domain)
 	if err != nil {
 		log.Fatal(err)
 	}
 }
 
-func logSMTP(db *sql.DB, RemoteAddr string) {
-	_, err := db.Exec("insert into smtp (data, source_ip, time) values ($1, $2, $3)", "", RemoteAddr, time.Now().String())
+func logSMTP(db *sql.DB, RemoteAddr, Domain string) {
+	_, err := db.Exec("insert into smtp (data, source_ip, time) values ($1, $2, $3)", Domain, RemoteAddr, time.Now().String())
 
 	//	result.LastInsertId()
 	if err != nil {
