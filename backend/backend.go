@@ -3,19 +3,17 @@ package backend
 import (
 	"TukTuk/database"
 	"database/sql"
-	"github.com/gorilla/sessions"
-	"github.com/labstack/echo"
-	"github.com/labstack/echo-contrib/session"
 	"html/template"
 	"io"
-
 	"log"
 	"math/rand"
 	"net/http"
 	"strings"
 	"time"
 
+	"github.com/gorilla/sessions"
 	"github.com/labstack/echo"
+	"github.com/labstack/echo-contrib/session"
 )
 
 type Request struct {

@@ -80,10 +80,11 @@ func StartSMTP(db *sql.DB, Domain string) {
 }
 
 func logSMTP(db *sql.DB, RemoteAddr, Domain string) {
-	_, err := db.Exec("insert into smtp (data, source_ip, time) values ($1, $2, $3)", Domain, RemoteAddr, time.Now().String())
+	var lastInsertId int64 = 0
+	err := db.QueryRow("insert into smtp (data, source_ip, time) values ($1, $2, $3) RETURNING id", Domain, RemoteAddr, time.Now().String()).Scan(&lastInsertId)
 
 	if err != nil {
 		log.Fatal(err)
 	}
-	telegrambot.BotSendAlert("", RemoteAddr, time.Now().String(), "SMTP")
+	telegrambot.BotSendAlert(Domain, RemoteAddr, time.Now().String(), "SMTP", lastInsertId)
 }
