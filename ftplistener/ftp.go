@@ -16,6 +16,7 @@ import (
 const (
 	status426 = "426 Bye."
 	status220 = "220 TukTuk callback server."
+	status331 = "331 password required."
 )
 
 //starting ftp server
@@ -83,6 +84,7 @@ func ServeFTP(c *Conn) {
 	c.respond(status220)
 	s := bufio.NewScanner(c.conn)
 	for s.Scan() {
+		fmt.Println(s.Text())
 		input := strings.Fields(s.Text())
 		if len(input) == 0 {
 			continue
@@ -92,6 +94,8 @@ func ServeFTP(c *Conn) {
 		fmt.Fprintf(c.data, "<< %s %v\n", command, args)
 		switch command {
 		case "USER":
+			c.respond(status331)
+		case "PASS":
 			c.respond(status426)
 			c.log()
 			return
