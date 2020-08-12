@@ -1,6 +1,7 @@
 package smtplistener
 
 import (
+	"TukTuk/smtplistener/go-smtp"
 	"TukTuk/telegrambot"
 	"database/sql"
 	"errors"
@@ -8,8 +9,6 @@ import (
 	"io/ioutil"
 	"log"
 	"time"
-
-	"github.com/emersion/go-smtp"
 )
 
 // The Backend implements SMTP server methods.
