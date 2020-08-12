@@ -64,8 +64,10 @@ func startServer() {
 }
 
 var records = map[string]string{
-	"*.tt.pwn.bar.":  "127.0.0.1",
-	"*.tt.pwn.bar.6": "::1",
+	"*.tt.pwn.bar.":         "127.0.0.1",
+	"*.tt.pwn.bar.6":        "::1",
+	"existing.tt.pwn.bar.":  "104.238.177.247",
+	"existing.tt.pwn.bar.6": "0:0:0:0:0:ffff:68ee:b1f7",
 }
 
 func HandlerTCP(w dns.ResponseWriter, req *dns.Msg) {
@@ -113,8 +115,10 @@ func Handler(w dns.ResponseWriter, req *dns.Msg) {
 			}
 			if result {
 				logDNS(req.String(), w.RemoteAddr().String())
+				answerQuery(m, true)
+			} else {
+				answerQuery(m, false)
 			}
-			answerQuery(m)
 		}
 		w.WriteMsg(m)
 	} else {
@@ -128,12 +132,17 @@ func Handler(w dns.ResponseWriter, req *dns.Msg) {
 	}
 }
 
-func answerQuery(m *dns.Msg) {
+func answerQuery(m *dns.Msg, resolveIP bool) {
 	for _, q := range m.Question {
 		switch q.Qtype {
 		case dns.TypeA:
 			log.Printf("Query for %s\n", q.Name)
-			ip := records["*.tt.pwn.bar."]
+			ip := ""
+			if resolveIP {
+				ip = records["existing.tt.pwn.bar."]
+			} else {
+				ip = records["*.tt.pwn.bar."]
+			}
 			if ip != "" {
 				rr, err := dns.NewRR(fmt.Sprintf("%s A %s", q.Name, ip))
 				if err == nil {
@@ -142,7 +151,12 @@ func answerQuery(m *dns.Msg) {
 			}
 		case dns.TypeAAAA:
 			log.Printf("ipv6 query for %s\n", q.Name)
-			ip := records["*.tt.pwn.bar.6"]
+			ip := ""
+			if resolveIP {
+				ip = records["existing.tt.pwn.bar.6"]
+			} else {
+				ip = records["*.tt.pwn.bar."]
+			}
 			if ip != "" {
 				rr, err := dns.NewRR(fmt.Sprintf("%s AAAA %s", q.Name, ip))
 				if err != nil {
