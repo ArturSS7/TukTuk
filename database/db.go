@@ -16,7 +16,7 @@ type DBContext struct {
 var DNSDB *sql.DB
 
 func Connect() *sql.DB {
-	db, err := sql.Open("postgres", "postgres://tuk:ZuppaSecurePwd@localhost:9999/tuktuk?sslmode=disable")
+	db, err := sql.Open("postgres", "postgres://tuk:ZuppaSecurePwd@localhost/tuktuk?sslmode=disable")
 	if err != nil {
 		panic(err)
 	}
