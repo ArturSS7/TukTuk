@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>TukTuk</title>
+    <link rel="stylesheet" href ="static/css/styles.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="https://unpkg.com/vue"></script>
+</head>
+<body>
+<h1 class="text-center">DNS Management</h1>
+<div id="app" class="container mt-4">
+    <div class="dns-btn">
+        <button @click="generateDNS()" type="button" class="btn btn-outline-primary">Generate new domain</button>
+        <p v-if="resp">New domain: {{dns_req.domain}}</p>
+    </div>
+    <div class="dns-get-btn">
+        <button @click="getDNS()" type="button" class="btn btn-outline-primary">Get available domains</button>
+    </div>
+    <table class="table table-bordered">
+        <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Domain</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr v-for="request, index in requests">
+            <th scope="row">{{index+1}}</th>
+            <td style="white-space:pre">{{request.domain}}</td>
+        </tr>
+        </tbody>
+    </table>
+    <script src="static/js/main.js"></script>
+</div>
+</body>
+</html>

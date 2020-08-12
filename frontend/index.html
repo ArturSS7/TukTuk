@@ -10,35 +10,38 @@
 </head>
 <body>
     <h1 class="text-center">TukTuk Collaborator Project</h1>
-    <div id="app" class="container mt-4">
-        <div class="buttons">
-            <button @click="getData('http')" type="button" class="btn btn-outline-primary">HTTP</button>
-            <button @click="getData('https')" type="button" class="btn btn-outline-primary">HTTPS</button>
-            <button @click="getData('dns')" type="button" class="btn btn-outline-primary">DNS</button>
-            <button @click="getData('ftp')" type="button" class="btn btn-outline-primary">FTP</button>
-            <button type="button" class="btn btn-outline-primary">SMTP</button>
-            <button type="button" class="btn btn-outline-primary">SMTPS</button>
-            <button type="button" class="btn btn-outline-primary">SMB</button>
-        </div>
-    <table class="table table-bordered">
-        <thead>
-        <tr>
-            <th scope="col">#</th>
-            <th scope="col">Request</th>
-            <th scope="col">Source IP</th>
-            <th scope="col">Time</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr v-for="request, index in requests">
-            <th scope="row">{{index+1}}</th>
-            <td style="white-space:pre">{{request.data}}</td>
-            <td>{{request.source_ip}}</td>
-            <td>{{request.time}}</td>
-        </tr>
-        </tbody>
-    </table>
-    <script src="static/js/main.js"></script>
+    <div class="text-center">
+        <a href="/dns">DNS management</a>
     </div>
+        <div id="app" class="container mt-4">
+            <div class="buttons">
+                <button @click="getData('http')" type="button" class="btn btn-outline-primary">HTTP</button>
+                <button @click="getData('https')" type="button" class="btn btn-outline-primary">HTTPS</button>
+                <button @click="getData('dns')" type="button" class="btn btn-outline-primary">DNS</button>
+                <button @click="getData('ftp')" type="button" class="btn btn-outline-primary">FTP</button>
+                <button type="button" class="btn btn-outline-primary">SMTP</button>
+                <button type="button" class="btn btn-outline-primary">SMTPS</button>
+                <button type="button" class="btn btn-outline-primary">SMB</button>
+            </div>
+        <table class="table table-bordered">
+            <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Request</th>
+                <th scope="col">Source IP</th>
+                <th scope="col">Time</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr v-for="request, index in requests">
+                <th scope="row">{{index+1}}</th>
+                <td style="white-space:pre">{{request.data}}</td>
+                <td>{{request.source_ip}}</td>
+                <td>{{request.time}}</td>
+            </tr>
+            </tbody>
+        </table>
+        <script src="static/js/main.js"></script>
+        </div>
 </body>
 </html>

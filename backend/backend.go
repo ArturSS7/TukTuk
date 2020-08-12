@@ -67,12 +67,14 @@ func StartBack(db *sql.DB) {
 	credentials.username = "dsec"
 	credentials.password = "tuktuk"
 	e.File("/", "frontend/index.html", loginRequired)
+	e.File("/dns", "frontend/dns.html", loginRequired)
 	e.Static("/static", "frontend/static/")
 	e.GET("/api/:proto", getRequests, loginRequired)
 	e.GET("/api/request/:proto", getRequest, loginRequired)
 	e.GET("/api/dns/new", generateDomain, loginRequired)
 	e.GET("/login", loginPage)
 	e.POST("/login", handleLogin)
+	e.GET("/api/dns/available", getAvailableDomains, loginRequired)
 	e.Debug = true
 	e.Logger.Fatal(e.Start(":1234"))
 }
@@ -250,4 +252,26 @@ func getLoginFromSession(c echo.Context) string {
 		return ""
 	}
 	return login.(string)
+}
+
+func getAvailableDomains(c echo.Context) error {
+	cc := c.(*database.DBContext)
+	rows, err := cc.Db.Query("select domain from dns_domains order by id desc")
+	if err != nil {
+		log.Println(err)
+		er := &Result{Error: "true"}
+		return c.JSON(200, er)
+	}
+	dd := make([]Domain, 0)
+	for rows.Next() {
+		d := Domain{}
+		err = rows.Scan(&d.Data)
+		if err != nil {
+			log.Println(err)
+			er := &Result{Error: "true"}
+			return c.JSON(200, er)
+		}
+		dd = append(dd, d)
+	}
+	return c.JSON(200, dd)
 }
