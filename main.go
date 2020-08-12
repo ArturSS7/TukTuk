@@ -14,7 +14,7 @@ import (
 func main() {
 	//connect to database
 	db := database.Connect()
-
+	domain := "tt.pwn.bar."
 	//start telegram bot
 	telegrambot.BotStart()
 
@@ -28,12 +28,12 @@ func main() {
 	go ftplistener.StartFTP(db)
 
 	//start dns server
-	go dnslistener.StartDNS("tt.pwn.bar.")
+	go dnslistener.StartDNS(domain)
 
 	//start smtp server
-	go smtplistener.StartSMTP(db, "localhost")
+	go smtplistener.StartSMTP(db, domain)
 
 	//start backend
-	backend.StartBack(db)
+	backend.StartBack(db, domain)
 
 }
