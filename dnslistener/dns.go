@@ -30,6 +30,7 @@ var domain string
 var records map[string]string
 
 func StartDNS(Domain string) {
+	records = make(map[string]string)
 	domain = Domain
 	records["*."+domain] = "127.0.0.1"
 	records["*."+domain+"6"] = "::1"

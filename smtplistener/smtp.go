@@ -1,10 +1,11 @@
 package smtplistener
 
 import (
-	"TukTuk/smtplistener/go-smtp"
+	smtp "TukTuk/smtplistener/smtpserver"
 	"TukTuk/telegrambot"
 	"database/sql"
 	"errors"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
@@ -69,7 +70,10 @@ func StartSMTP(db *sql.DB, Domain string) {
 	s.AllowInsecureAuth = true
 	log.Println("Starting server at", s.Addr)
 	err, RemoteAddr := s.ListenAndServe()
-	logSMTP(db, RemoteAddr, s.Domain)
+	fmt.Println(RemoteAddr)
+	fmt.Println(Domain)
+
+	//logSMTP(db, RemoteAddr, s.Domain)
 	if err != nil {
 		log.Fatal(err)
 	}
