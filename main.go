@@ -28,7 +28,7 @@ func main() {
 	go ftplistener.StartFTP(db)
 
 	//start dns server
-	go dnslistener.StartDNS()
+	go dnslistener.StartDNS("tt.pwn.bar.")
 
 	//start smtp server
 	go smtplistener.StartSMTP(db, "localhost")
