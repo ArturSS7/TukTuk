@@ -56,19 +56,18 @@ func (s *Session) Logout() error {
 	return nil
 }
 
-func StartSMTP(db *sql.DB) {
+func StartSMTP(db *sql.DB, Domain string) {
 	be := &Backend{}
 
 	s := smtp.NewServer(be)
 
 	s.Addr = ":587"
-	s.Domain = "localhost"
+	s.Domain = Domain
 	s.ReadTimeout = 100 * time.Second
 	s.WriteTimeout = 100 * time.Second
 	s.MaxMessageBytes = 1024 * 1024
 	s.MaxRecipients = 50
 	s.AllowInsecureAuth = true
-	//var RemoteAddr string
 	log.Println("Starting server at", s.Addr)
 	err, RemoteAddr := s.ListenAndServe()
 	logSMTP(db, RemoteAddr, s.Domain)
@@ -80,7 +79,6 @@ func StartSMTP(db *sql.DB) {
 func logSMTP(db *sql.DB, RemoteAddr, Domain string) {
 	_, err := db.Exec("insert into smtp (data, source_ip, time) values ($1, $2, $3)", Domain, RemoteAddr, time.Now().String())
 
-	//	result.LastInsertId()
 	if err != nil {
 		log.Fatal(err)
 	}
