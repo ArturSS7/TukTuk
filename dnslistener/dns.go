@@ -34,6 +34,8 @@ func StartDNS(Domain string) {
 	domain = Domain
 	records["*."+domain] = "127.0.0.1"
 	records["*."+domain+"6"] = "::1"
+  records["existing."+domain] = "104.238.177.247"
+  records["existing."+domain+"6"] = "0:0:0:0:0:ffff:68ee:b1f7"
 	startServer()
 }
 
@@ -79,11 +81,14 @@ func HandlerUDP(w dns.ResponseWriter, req *dns.Msg) {
 }
 
 func logDNS(query string, sourceIp string) {
-	_, err := database.DNSDB.Query("insert into dns (data, source_ip, time) values ($1, $2, $3)", html.EscapeString(query), sourceIp, time.Now().String())
+	var lastInsertId int64 = 0
+	err := database.DNSDB.QueryRow("insert into dns (data, source_ip, time) values ($1, $2, $3)  RETURNING id", html.EscapeString(query), sourceIp, time.Now().String()).Scan(&lastInsertId)
 	if err != nil {
 		log.Println(err)
 	}
-	telegrambot.BotSendAlert(html.EscapeString(query), sourceIp, time.Now().String(), "DNS")
+
+	//Send Alert to telegram
+	telegrambot.BotSendAlert(html.EscapeString(query), sourceIp, time.Now().String(), "DNS", lastInsertId)
 }
 
 func Handler(w dns.ResponseWriter, req *dns.Msg) {
@@ -112,8 +117,10 @@ func Handler(w dns.ResponseWriter, req *dns.Msg) {
 			}
 			if result {
 				logDNS(req.String(), w.RemoteAddr().String())
+				answerQuery(m, true)
+			} else {
+				answerQuery(m, false)
 			}
-			answerQuery(m)
 		}
 		w.WriteMsg(m)
 	} else {
@@ -127,12 +134,19 @@ func Handler(w dns.ResponseWriter, req *dns.Msg) {
 	}
 }
 
-func answerQuery(m *dns.Msg) {
+func answerQuery(m *dns.Msg, resolveIP bool) {
 	for _, q := range m.Question {
 		switch q.Qtype {
 		case dns.TypeA:
 			log.Printf("Query for %s\n", q.Name)
-			ip := records["*."+domain]
+      
+			ip := ""
+			if resolveIP {
+				ip = records["existing."+domain]
+			} else {
+				ip = records["*."+domain]
+			}
+
 			if ip != "" {
 				rr, err := dns.NewRR(fmt.Sprintf("%s A %s", q.Name, ip))
 				if err == nil {
@@ -141,7 +155,14 @@ func answerQuery(m *dns.Msg) {
 			}
 		case dns.TypeAAAA:
 			log.Printf("ipv6 query for %s\n", q.Name)
-			ip := records["*."+domain+"6"]
+      
+			ip := ""
+			if resolveIP {
+        ip = records["existing."+domain+"6"]
+			} else {
+				ip = records["*."+domain]
+			}
+
 			if ip != "" {
 				rr, err := dns.NewRR(fmt.Sprintf("%s AAAA %s", q.Name, ip))
 				if err != nil {

@@ -6,6 +6,7 @@ import (
 	"bytes"
 	"database/sql"
 	"fmt"
+	"html"
 	"log"
 	"net"
 	"strings"
@@ -15,6 +16,7 @@ import (
 const (
 	status426 = "426 Bye."
 	status220 = "220 TukTuk callback server."
+	status331 = "331 password required."
 )
 
 //starting ftp server
@@ -57,12 +59,14 @@ func newConn(conn net.Conn, db *sql.DB) *Conn {
 
 //logging to database
 func (c *Conn) log() {
-	_, err := c.db.Exec("insert into ftp (data, source_ip, time) values ($1, $2, $3)", c.data.String(), c.conn.RemoteAddr().String(), time.Now().String())
+	var lastInsertId int64 = 0
+	err := c.db.QueryRow("insert into ftp (data, source_ip, time) values ($1, $2, $3) RETURNING id", html.EscapeString(c.data.String()), c.conn.RemoteAddr().String(), time.Now().String()).Scan(&lastInsertId)
 	if err != nil {
 		log.Println(err)
 	}
+
 	//Send Alert to telegram
-	telegrambot.BotSendAlert(c.data.String(), c.conn.RemoteAddr().String(), time.Now().String(), "FTP")
+	telegrambot.BotSendAlert(c.data.String(), c.conn.RemoteAddr().String(), time.Now().String(), "FTP", lastInsertId)
 }
 
 func (c *Conn) respond(s string) {
@@ -80,6 +84,7 @@ func ServeFTP(c *Conn) {
 	c.respond(status220)
 	s := bufio.NewScanner(c.conn)
 	for s.Scan() {
+		fmt.Println(s.Text())
 		input := strings.Fields(s.Text())
 		if len(input) == 0 {
 			continue
@@ -89,6 +94,8 @@ func ServeFTP(c *Conn) {
 		fmt.Fprintf(c.data, "<< %s %v\n", command, args)
 		switch command {
 		case "USER":
+			c.respond(status331)
+		case "PASS":
 			c.respond(status426)
 			c.log()
 			return
