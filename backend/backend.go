@@ -8,11 +8,14 @@ import (
 	"github.com/labstack/echo-contrib/session"
 	"html/template"
 	"io"
+
 	"log"
 	"math/rand"
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/labstack/echo"
 )
 
 type Request struct {
@@ -49,7 +52,8 @@ type ErrorContext struct {
 }
 
 //start backend
-func StartBack(db *sql.DB) {
+func StartBack(db *sql.DB, Domain string) {
+	domain = Domain
 	e := echo.New()
 	//pass db pointer to echo handler
 	t := &Template{
@@ -121,9 +125,11 @@ type Domain struct {
 	Data string `json:"domain"`
 }
 
+var domain string
+
 func generateDomain(c echo.Context) error {
 	d := &Domain{}
-	d.Data = RandStringBytes(8) + ".tt.pwn.bar"
+	d.Data = RandStringBytes(8) + "." + domain
 	cc := c.(*database.DBContext)
 	_, err := cc.Db.Exec("insert into dns_domains (domain) values ($1)", d.Data+".")
 	if err != nil {

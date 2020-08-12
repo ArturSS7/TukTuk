@@ -3,6 +3,7 @@ package database
 import (
 	"database/sql"
 	"fmt"
+
 	"github.com/labstack/echo"
 	_ "github.com/lib/pq"
 )
