@@ -86,9 +86,9 @@ func messageFormation(ContentFormation content, ProtocolName string, id int64) s
 		request = ContentFormation.data + "\n" + ContentFormation.source_ip + "\n" + ContentFormation.time + "\n\nLink: http://127.0.0.1:1234/api/request/" + strings.ToLower(ProtocolName) + "?id=" + strconv.Itoa(int(id))
 	}
 	request = "Received " + ProtocolName + " request from IP: " + ContentFormation.source_ip + "\n\nLink: http://pwn.bar:1234/api/request/" + strings.ToLower(ProtocolName) + "?id=" + strconv.Itoa(int(id))
-	//	if ProtocolName == "DNS" {
-	//		request += "\nFrom Domain: " + ParseDomain(ContentFormation.data)
-	//	}
+	if ProtocolName == "DNS" {
+		request += "\nFrom Domain: " + ParseDomain(ContentFormation.data)
+	}
 	return request
 
 }
@@ -129,21 +129,8 @@ func parseConfig() {
 	}
 }
 
-// func getIP() {
-// 	addrs, err := net.InterfaceAddrs()
-// 	if err != nil {
-// 		panic(err)
-// 	}
-// 	for _, a := range addrs {
-// 		if ipnet, ok := a.(*net.IPNet); ok && !ipnet.IP.IsUnspecified() {
-// 			if ipnet.IP.To4() != nil {
-// 				os.Stdout.WriteString(ipnet.IP.String() + "\n")
-// 			}
-// 		}
-// 	}
-// }
 func ParseDomain(data string) string {
-	re := regexp.MustCompile(`QUESTION SECTION.+IN`)
+	re := regexp.MustCompile(`QUESTION SECTION:\n.+IN`)
 	data = re.FindString(data)
 	re = regexp.MustCompile(`;.+\.`)
 	return re.FindString(data)[1:]
