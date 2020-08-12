@@ -26,7 +26,13 @@ type DnsMsg struct {
 	DnsOpCode       string
 }
 
-func StartDNS() {
+var domain string
+var records map[string]string
+
+func StartDNS(Domain string) {
+	domain = Domain
+	records["*."+domain] = "127.0.0.1"
+	records["*."+domain+"6"] = "::1"
 	startServer()
 }
 
@@ -63,11 +69,6 @@ func startServer() {
 	}()
 }
 
-var records = map[string]string{
-	"*.tt.pwn.bar.":  "127.0.0.1",
-	"*.tt.pwn.bar.6": "::1",
-}
-
 func HandlerTCP(w dns.ResponseWriter, req *dns.Msg) {
 	Handler(w, req)
 }
@@ -87,7 +88,7 @@ func logDNS(query string, sourceIp string) {
 func Handler(w dns.ResponseWriter, req *dns.Msg) {
 	defer w.Close()
 	question := req.Question[0]
-	matched, err := regexp.MatchString(`^*.tt.pwn.bar.`, question.Name)
+	matched, err := regexp.MatchString(`^*."`+"*."+domain, question.Name)
 	if err != nil {
 		log.Println(err)
 	}
@@ -130,7 +131,7 @@ func answerQuery(m *dns.Msg) {
 		switch q.Qtype {
 		case dns.TypeA:
 			log.Printf("Query for %s\n", q.Name)
-			ip := records["*.tt.pwn.bar."]
+			ip := records["*."+domain]
 			if ip != "" {
 				rr, err := dns.NewRR(fmt.Sprintf("%s A %s", q.Name, ip))
 				if err == nil {
@@ -139,7 +140,7 @@ func answerQuery(m *dns.Msg) {
 			}
 		case dns.TypeAAAA:
 			log.Printf("ipv6 query for %s\n", q.Name)
-			ip := records["*.tt.pwn.bar.6"]
+			ip := records["*."+domain+"6"]
 			if ip != "" {
 				rr, err := dns.NewRR(fmt.Sprintf("%s AAAA %s", q.Name, ip))
 				if err != nil {
