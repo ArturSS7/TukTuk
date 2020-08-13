@@ -34,8 +34,8 @@ func StartDNS(Domain string) {
 	domain = Domain
 	records["*."+domain] = "127.0.0.1"
 	records["*."+domain+"6"] = "::1"
-  records["existing."+domain] = "104.238.177.247"
-  records["existing."+domain+"6"] = "0:0:0:0:0:ffff:68ee:b1f7"
+	records["existing."+domain] = "104.238.177.247"
+	records["existing."+domain+"6"] = "0:0:0:0:0:ffff:68ee:b1f7"
 	startServer()
 }
 
@@ -139,7 +139,7 @@ func answerQuery(m *dns.Msg, resolveIP bool) {
 		switch q.Qtype {
 		case dns.TypeA:
 			log.Printf("Query for %s\n", q.Name)
-      
+
 			ip := ""
 			if resolveIP {
 				ip = records["existing."+domain]
@@ -155,10 +155,10 @@ func answerQuery(m *dns.Msg, resolveIP bool) {
 			}
 		case dns.TypeAAAA:
 			log.Printf("ipv6 query for %s\n", q.Name)
-      
+
 			ip := ""
 			if resolveIP {
-        ip = records["existing."+domain+"6"]
+				ip = records["existing."+domain+"6"]
 			} else {
 				ip = records["*."+domain]
 			}
