@@ -129,7 +129,7 @@ func generateDomain(c echo.Context) error {
 	d := &Domain{}
 	d.Data = RandStringBytes(8) + "." + domain
 	cc := c.(*database.DBContext)
-	_, err := cc.Db.Exec("insert into dns_domains (domain) values ($1)", d.Data+".")
+	_, err := cc.Db.Exec("insert into dns_domains (domain) values ($1)", d.Data)
 	if err != nil {
 		log.Println(err)
 		er := &Result{Error: "true"}
