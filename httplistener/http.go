@@ -45,7 +45,7 @@ func handleHTTP(c echo.Context) error {
 	re := regexp.MustCompile(`([a-z0-9\-]+\.tt\.pwn\.bar)`)
 	d := re.Find([]byte(c.Request().Host))
 	fmt.Println(d)
-	rows, err := cc.Db.Query("select exists (select id from dns_domains where domain = $1)", d)
+	rows, err := cc.Db.Query("select exists (select id from dns_domains where domain = $1)", string(d)+".")
 	if err != nil {
 		log.Println(err)
 		return c.String(200, backend.RandStringBytes(8))
