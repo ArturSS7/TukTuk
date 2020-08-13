@@ -73,7 +73,7 @@ func StartSMTP(db *sql.DB, Domain string) {
 	fmt.Println(RemoteAddr)
 	fmt.Println(Domain)
 
-	//logSMTP(db, RemoteAddr, s.Domain)
+	logSMTP(db, RemoteAddr, s.Domain)
 	if err != nil {
 		log.Fatal(err)
 	}

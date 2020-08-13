@@ -43,7 +43,7 @@ func BotSendAlert(data, source_ip, time, ProtocolName string, id int64) {
 
 	log.Printf("Authorized on account %s", bot.Self.UserName)
 
-	responce := tgbotapi.NewMessage(SettingBot.ChatID, messageFormation(_cont, ProtocolName, id))
+	responce := tgbotapi.NewMessage(SettingBot.ChatID, "```"+messageFormation(_cont, ProtocolName, id)+"```")
 	bot.Send(responce)
 
 }
