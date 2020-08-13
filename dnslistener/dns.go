@@ -72,6 +72,14 @@ func startServer() {
 	}()
 }
 
+
+var records = map[string]string{
+	"*.tt.pwn.bar.":         "127.0.0.1",
+	"*.tt.pwn.bar.6":        "::1",
+	"existing.tt.pwn.bar.":  "104.238.177.247",
+	"existing.tt.pwn.bar.6": "::1",
+}
+
 func HandlerTCP(w dns.ResponseWriter, req *dns.Msg) {
 	Handler(w, req)
 }
@@ -93,6 +101,7 @@ func logDNS(query string, sourceIp string) {
 
 func Handler(w dns.ResponseWriter, req *dns.Msg) {
 	defer w.Close()
+	fmt.Println(req)
 	question := req.Question[0]
 	matched, err := regexp.MatchString(`^*."`+"*."+domain, question.Name)
 	if err != nil {
