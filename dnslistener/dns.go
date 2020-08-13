@@ -72,14 +72,6 @@ func startServer() {
 	}()
 }
 
-
-var records = map[string]string{
-	"*.tt.pwn.bar.":         "127.0.0.1",
-	"*.tt.pwn.bar.6":        "::1",
-	"existing.tt.pwn.bar.":  "104.238.177.247",
-	"existing.tt.pwn.bar.6": "::1",
-}
-
 func HandlerTCP(w dns.ResponseWriter, req *dns.Msg) {
 	Handler(w, req)
 }
@@ -103,7 +95,8 @@ func Handler(w dns.ResponseWriter, req *dns.Msg) {
 	defer w.Close()
 	fmt.Println(req)
 	question := req.Question[0]
-	matched, err := regexp.MatchString(`^*."`+"*."+domain, question.Name)
+	matched, err := regexp.MatchString(`^*.`+domain, question.Name)
+	fmt.Println(matched)
 	if err != nil {
 		log.Println(err)
 	}
@@ -114,7 +107,10 @@ func Handler(w dns.ResponseWriter, req *dns.Msg) {
 		switch req.Opcode {
 		case dns.OpcodeQuery:
 			var result bool
-			rows, err := database.DNSDB.Query("select exists(select domain from dns_domains where domain = $1)", question.Name)
+			re := regexp.MustCompile(`([a-z0-9\-]+\.)` + domain)
+			d := re.Find([]byte(question.Name))
+			fmt.Println(d)
+			rows, err := database.DNSDB.Query("select exists(select domain from dns_domains where domain = $1)", d)
 			if err != nil {
 				log.Println(err)
 			}
