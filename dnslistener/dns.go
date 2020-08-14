@@ -8,6 +8,7 @@ import (
 	"html"
 	"log"
 	"regexp"
+	"strings"
 	"sync"
 	"time"
 
@@ -108,7 +109,7 @@ func Handler(w dns.ResponseWriter, req *dns.Msg) {
 		case dns.OpcodeQuery:
 			var result bool
 			re := regexp.MustCompile(`([a-z0-9\-]+\.)` + domain)
-			d := re.Find([]byte(question.Name))
+			d := re.Find([]byte(strings.ToLower(question.Name)))
 			fmt.Println(d)
 			rows, err := database.DNSDB.Query("select exists(select domain from dns_domains where domain = $1)", d)
 			if err != nil {
