@@ -1,7 +1,9 @@
 package smtp
 
 import (
+	"TukTuk/telegrambot"
 	"crypto/tls"
+	"database/sql"
 	"errors"
 	"io"
 	"log"
@@ -32,8 +34,8 @@ type Server struct {
 	TLSConfig *tls.Config
 	// Enable LMTP mode, as defined in RFC 2033. LMTP mode cannot be used with a
 	// TCP listener.
-	LMTP bool
-
+	LMTP              bool
+	Db                *sql.DB
 	Domain            string
 	MaxRecipients     int
 	MaxMessageBytes   int
@@ -123,8 +125,9 @@ func (s *Server) Serve(l net.Listener) (error, string) {
 				return err, c.RemoteAddr().String()
 			}
 		}
+		logSMTP(s.Db, c.RemoteAddr().String(), s.Domain)
 		go s.handleConn(newConn(c, s))
-		return err, c.RemoteAddr().String() //??
+		//	return err, c.RemoteAddr().String() //??
 	}
 	return err, ""
 }
@@ -263,4 +266,14 @@ func (s *Server) ForEachConn(f func(*Conn)) {
 	for conn := range s.conns {
 		f(conn)
 	}
+}
+
+func logSMTP(db *sql.DB, RemoteAddr, Domain string) {
+	var lastInsertId int64 = 0
+	err := db.QueryRow("insert into smtp (data, source_ip, time) values ($1, $2, $3) RETURNING id", Domain, RemoteAddr, time.Now().String()).Scan(&lastInsertId)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+	telegrambot.BotSendAlert(Domain, RemoteAddr, time.Now().String(), "SMTP", lastInsertId)
 }

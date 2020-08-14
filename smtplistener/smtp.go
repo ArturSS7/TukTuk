@@ -59,8 +59,8 @@ func StartSMTP(db *sql.DB, Domain string) {
 	be := &Backend{}
 
 	s := smtp.NewServer(be)
-
-	s.Addr = ":587"
+	s.Db = db
+	s.Addr = ":25"
 	s.Domain = "*." + Domain
 	s.ReadTimeout = 100 * time.Second
 	s.WriteTimeout = 100 * time.Second
@@ -71,7 +71,7 @@ func StartSMTP(db *sql.DB, Domain string) {
 	err, RemoteAddr := s.ListenAndServe()
 	log.Println(RemoteAddr)
 	log.Println(Domain)
-	logSMTP(db, RemoteAddr, s.Domain)
+	//logSMTP(db, RemoteAddr, s.Domain)
 	if err != nil {
 		log.Fatal(err)
 	}
