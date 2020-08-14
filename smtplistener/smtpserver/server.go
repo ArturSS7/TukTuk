@@ -113,7 +113,6 @@ func (s *Server) Serve(l net.Listener) (error, string) {
 	var err error
 	for {
 		c, err := l.Accept()
-		go s.handleConn(newConn(c, s))
 
 		if err != nil {
 			select {
@@ -124,6 +123,7 @@ func (s *Server) Serve(l net.Listener) (error, string) {
 				return err, c.RemoteAddr().String()
 			}
 		}
+		go s.handleConn(newConn(c, s))
 		return err, c.RemoteAddr().String() //??
 	}
 	return err, ""
