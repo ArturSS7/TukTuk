@@ -24,7 +24,7 @@ func (bkd *Backend) Login(state *smtp.ConnectionState, username, password string
 
 // AnonymousLogin requires clients to authenticate using SMTP AUTH before sending emails
 func (bkd *Backend) AnonymousLogin(state *smtp.ConnectionState) (smtp.Session, error) {
-	return nil, smtp.ErrAuthRequired
+	return &Session{}, nil
 }
 
 // A Session is returned after successful login.
@@ -67,6 +67,7 @@ func StartSMTP(db *sql.DB, Domain string) {
 	s.MaxMessageBytes = 1024 * 1024
 	s.MaxRecipients = 50
 	s.AllowInsecureAuth = true
+	s.AuthDisabled = true
 	log.Println("Starting server at", s.Addr)
 	err, RemoteAddr := s.ListenAndServe()
 	log.Println(RemoteAddr)

@@ -271,9 +271,11 @@ func (s *Server) ForEachConn(f func(*Conn)) {
 func logSMTP(db *sql.DB, RemoteAddr, Domain string) {
 	var lastInsertId int64 = 0
 	err := db.QueryRow("insert into smtp (data, source_ip, time) values ($1, $2, $3) RETURNING id", Domain, RemoteAddr, time.Now().String()).Scan(&lastInsertId)
-
 	if err != nil {
 		log.Fatal(err)
 	}
-	telegrambot.BotSendAlert(Domain, RemoteAddr, time.Now().String(), "SMTP", lastInsertId)
+	log.Println("!!!!!!!!!!!!!!!!!!")
+	log.Println(Data_)
+	log.Println("!!!!!!!!!!!!!!!!!!")
+	telegrambot.BotSendAlert(Domain+"\n "+Data_, RemoteAddr, time.Now().String(), "SMTP", lastInsertId)
 }

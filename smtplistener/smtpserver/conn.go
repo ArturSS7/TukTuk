@@ -397,6 +397,7 @@ func (c *Conn) handleMail(arg string) {
 	if err := c.Session().Mail(from, opts); err != nil {
 		if smtpErr, ok := err.(*SMTPError); ok {
 			c.WriteResponse(smtpErr.Code, smtpErr.EnhancedCode, smtpErr.Message)
+			Data_ += from + " "
 			return
 		}
 		c.WriteResponse(451, EnhancedCode{4, 0, 0}, err.Error())
@@ -458,6 +459,10 @@ func encodeXtext(raw string) string {
 	return out.String()
 }
 
+/////////////
+var Data_ string
+
+////////
 // MAIL state -> waiting for RCPTs followed by DATA
 func (c *Conn) handleRcpt(arg string) {
 	if !c.fromReceived {
@@ -484,6 +489,7 @@ func (c *Conn) handleRcpt(arg string) {
 
 	if err := c.Session().Rcpt(recipient); err != nil {
 		if smtpErr, ok := err.(*SMTPError); ok {
+			Data_ += recipient + " "
 			c.WriteResponse(smtpErr.Code, smtpErr.EnhancedCode, smtpErr.Message)
 			return
 		}
@@ -646,8 +652,19 @@ func (c *Conn) handleData(arg string) {
 	r.limited = false
 	io.Copy(ioutil.Discard, r) // Make sure all the data has been consumed
 	c.WriteResponse(code, enhancedCode, msg)
+	tmp, err := ConvertData(r)
+	if err == nil {
+		Data_ += tmp
+	}
 }
+func ConvertData(r io.Reader) (string, error) {
+	if b, err := ioutil.ReadAll(r); err != nil {
+		return "", err
+	} else {
+		return string(b), nil
+	}
 
+}
 func (c *Conn) handleBdat(arg string) {
 	args := strings.Fields(arg)
 	if len(args) == 0 {
