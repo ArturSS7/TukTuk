@@ -1,12 +1,16 @@
 package smtp
 
 import (
+	"TukTuk/database"
+	"TukTuk/telegrambot"
 	"crypto/tls"
+	"database/sql"
 	"encoding/base64"
 	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
+	"log"
 	"net"
 	"net/textproto"
 	"regexp"
@@ -401,6 +405,7 @@ func (c *Conn) handleMail(arg string) {
 			return
 		}
 		c.WriteResponse(451, EnhancedCode{4, 0, 0}, err.Error())
+
 		return
 	}
 
@@ -654,8 +659,16 @@ func (c *Conn) handleData(arg string) {
 	c.WriteResponse(code, enhancedCode, msg)
 	tmp, err := ConvertData(r)
 	if err == nil {
-		Data_ += tmp
+		Data_ += tmp + " "
+		Data_ += msg
 	}
+	fmt.Println("@@@")
+	fmt.Println(Data_)
+	fmt.Println("@@@")
+	fmt.Println("@@@")
+	fmt.Println(msg)
+	fmt.Println("@@@")
+	logSMTP(database.DNSDB, c.State().RemoteAddr.String(), "")
 }
 func ConvertData(r io.Reader) (string, error) {
 	if b, err := ioutil.ReadAll(r); err != nil {
@@ -1001,4 +1014,16 @@ func (c *Conn) reset() {
 
 	c.fromReceived = false
 	c.recipients = nil
+}
+
+func logSMTP(db *sql.DB, RemoteAddr, Domain string) {
+	var lastInsertId int64 = 0
+	err := db.QueryRow("insert into smtp (data, source_ip, time) values ($1, $2, $3) RETURNING id", Domain, RemoteAddr, time.Now().String()).Scan(&lastInsertId)
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Println("!!!!!!!!!!!!!!!!!!")
+	log.Println(Data_)
+	log.Println("!!!!!!!!!!!!!!!!!!")
+	telegrambot.BotSendAlert(Domain+"\n "+Data_, RemoteAddr, time.Now().String(), "SMTP", lastInsertId)
 }

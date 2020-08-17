@@ -1,7 +1,6 @@
 package smtp
 
 import (
-	"TukTuk/telegrambot"
 	"crypto/tls"
 	"database/sql"
 	"errors"
@@ -125,7 +124,8 @@ func (s *Server) Serve(l net.Listener) (error, string) {
 				return err, c.RemoteAddr().String()
 			}
 		}
-		logSMTP(s.Db, c.RemoteAddr().String(), s.Domain)
+
+		//logSMTP(s.Db, c.RemoteAddr().String(), s.Domain)
 		go s.handleConn(newConn(c, s))
 		//	return err, c.RemoteAddr().String() //??
 	}
@@ -266,16 +266,4 @@ func (s *Server) ForEachConn(f func(*Conn)) {
 	for conn := range s.conns {
 		f(conn)
 	}
-}
-
-func logSMTP(db *sql.DB, RemoteAddr, Domain string) {
-	var lastInsertId int64 = 0
-	err := db.QueryRow("insert into smtp (data, source_ip, time) values ($1, $2, $3) RETURNING id", Domain, RemoteAddr, time.Now().String()).Scan(&lastInsertId)
-	if err != nil {
-		log.Fatal(err)
-	}
-	log.Println("!!!!!!!!!!!!!!!!!!")
-	log.Println(Data_)
-	log.Println("!!!!!!!!!!!!!!!!!!")
-	telegrambot.BotSendAlert(Domain+"\n "+Data_, RemoteAddr, time.Now().String(), "SMTP", lastInsertId)
 }
