@@ -663,6 +663,7 @@ func (c *Conn) handleData(arg string) {
 	io.Copy(ioutil.Discard, r) // Make sure all the data has been consumed
 	c.WriteResponse(code, enhancedCode, msg)
 	Data_ += MailData
+	fmt.Println("")
 	logSMTP(database.DNSDB, c.State().RemoteAddr.String())
 }
 func ConvertData(r io.Reader) (string, error) {
@@ -738,6 +739,8 @@ func (c *Conn) handleBdat(arg string) {
 			var err error
 			if !c.server.LMTP {
 				err = c.Session().Data(r)
+				Data_ += MailData
+				logSMTP(database.DNSDB, c.State().RemoteAddr.String())
 			} else {
 				lmtpSession, ok := c.Session().(LMTPSession)
 				if !ok {
@@ -1013,7 +1016,7 @@ func (c *Conn) reset() {
 
 func logSMTP(db *sql.DB, RemoteAddr string) {
 	var lastInsertId int64 = 0
-	err := db.QueryRow("insert into smtp (data, source_ip, time) values ($1, $2, $3) RETURNING id", DomainData, RemoteAddr, time.Now().String()).Scan(&lastInsertId)
+	err := db.QueryRow("insert into smtp (data, source_ip, time) values ($1, $2, $3) RETURNING id", DomainData+"\n "+Data_, RemoteAddr, time.Now().String()).Scan(&lastInsertId)
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -92,9 +92,7 @@ func messageFormation(ContentFormation content, ProtocolName string, id int64) s
 	if ProtocolName == "DNS" {
 		request += "\nFrom Domain: `" + ParseDomain(ContentFormation.data) + "`"
 	}
-	if ProtocolName == "SMTP" {
-		request = ContentFormation.data + "\n!!!!!!\n" + ContentFormation.source_ip + "\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n"
-	}
+
 	return request
 
 }
