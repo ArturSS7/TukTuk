@@ -160,6 +160,8 @@ func getRequest(c echo.Context) error {
 		table = "https"
 	case "dns":
 		table = "dns"
+	case "smtp":
+		table = "smtp"
 	default:
 		return c.String(404, "Not Found")
 	}
