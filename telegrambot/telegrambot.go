@@ -90,9 +90,11 @@ func messageFormation(ContentFormation content, ProtocolName string, id int64) s
 		request = "Received " + ProtocolName + " request from IP: `" + ContentFormation.source_ip + "`\n\nLink: http://pwn.bar:1234/api/request/" + strings.ToLower(ProtocolName) + "?id=" + strconv.Itoa(int(id))
 	}
 	if ProtocolName == "DNS" {
-		request += "\nFrom Domain: `" + ParseDomain(ContentFormation.data) + "`"
-	}
+		request += "\nFrom Domain: `" + ParseDomainDNS(ContentFormation.data) + "`"
+	} else if ProtocolName == "SMTP" {
+		request += "\nFrom Domain: `" + ParseDomainSMTP(ContentFormation.data) + "`"
 
+	}
 	return request
 
 }
@@ -133,10 +135,16 @@ func parseConfig() {
 	}
 }
 
-func ParseDomain(data string) string {
+func ParseDomainDNS(data string) string {
 	re := regexp.MustCompile(`QUESTION SECTION:\n.+IN`)
 	data = re.FindString(data)
 	re = regexp.MustCompile(`;.+\.`)
 	return re.FindString(data)[1:]
+
+}
+func ParseDomainSMTP(data string) string {
+	re := regexp.MustCompile(`\s`)
+
+	return re.Split(data, -1)[0]
 
 }
