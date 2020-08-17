@@ -409,7 +409,7 @@ func (c *Conn) handleMail(arg string) {
 
 		return
 	}
-	Data_ += from + " "
+	Data_ += "From: " + from + "\n"
 	c.WriteResponse(250, EnhancedCode{2, 0, 0}, fmt.Sprintf("Roger, accepting mail from <%v>", from))
 	c.fromReceived = true
 }
@@ -504,7 +504,7 @@ func (c *Conn) handleRcpt(arg string) {
 		c.WriteResponse(451, EnhancedCode{4, 0, 0}, err.Error())
 		return
 	}
-	Data_ += recipient + " "
+	Data_ += "To:" + recipient + "\n"
 	DomainData = DomainParse(recipient)
 	c.recipients = append(c.recipients, recipient)
 	c.WriteResponse(250, EnhancedCode{2, 0, 0}, fmt.Sprintf("I'll make sure <%v> gets this", recipient))
