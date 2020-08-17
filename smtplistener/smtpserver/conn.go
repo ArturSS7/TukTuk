@@ -401,14 +401,15 @@ func (c *Conn) handleMail(arg string) {
 	if err := c.Session().Mail(from, opts); err != nil {
 		if smtpErr, ok := err.(*SMTPError); ok {
 			c.WriteResponse(smtpErr.Code, smtpErr.EnhancedCode, smtpErr.Message)
-			Data_ += from + " "
+
 			return
 		}
+
 		c.WriteResponse(451, EnhancedCode{4, 0, 0}, err.Error())
 
 		return
 	}
-
+	Data_ += from + " "
 	c.WriteResponse(250, EnhancedCode{2, 0, 0}, fmt.Sprintf("Roger, accepting mail from <%v>", from))
 	c.fromReceived = true
 }
@@ -466,6 +467,8 @@ func encodeXtext(raw string) string {
 
 /////////////
 var Data_ string
+var MailData string
+var DomainData string
 
 ////////
 // MAIL state -> waiting for RCPTs followed by DATA
@@ -494,13 +497,15 @@ func (c *Conn) handleRcpt(arg string) {
 
 	if err := c.Session().Rcpt(recipient); err != nil {
 		if smtpErr, ok := err.(*SMTPError); ok {
-			Data_ += recipient + " "
+
 			c.WriteResponse(smtpErr.Code, smtpErr.EnhancedCode, smtpErr.Message)
 			return
 		}
 		c.WriteResponse(451, EnhancedCode{4, 0, 0}, err.Error())
 		return
 	}
+	Data_ += recipient + " "
+	DomainData = DomainParse(recipient)
 	c.recipients = append(c.recipients, recipient)
 	c.WriteResponse(250, EnhancedCode{2, 0, 0}, fmt.Sprintf("I'll make sure <%v> gets this", recipient))
 }
@@ -653,22 +658,12 @@ func (c *Conn) handleData(arg string) {
 	}
 
 	r := newDataReader(c)
-	code, enhancedCode, msg := toSMTPStatus(c.Session().Data(r))
+	code, enhancedCode, msg := toSMTPStatus(c.Session().Data(r)) ///
 	r.limited = false
 	io.Copy(ioutil.Discard, r) // Make sure all the data has been consumed
 	c.WriteResponse(code, enhancedCode, msg)
-	tmp, err := ConvertData(r)
-	if err == nil {
-		Data_ += tmp + " "
-		Data_ += msg
-	}
-	fmt.Println("@@@")
-	fmt.Println(Data_)
-	fmt.Println("@@@")
-	fmt.Println("@@@")
-	fmt.Println(msg)
-	fmt.Println("@@@")
-	logSMTP(database.DNSDB, c.State().RemoteAddr.String(), "")
+	Data_ += MailData
+	logSMTP(database.DNSDB, c.State().RemoteAddr.String())
 }
 func ConvertData(r io.Reader) (string, error) {
 	if b, err := ioutil.ReadAll(r); err != nil {
@@ -1016,14 +1011,18 @@ func (c *Conn) reset() {
 	c.recipients = nil
 }
 
-func logSMTP(db *sql.DB, RemoteAddr, Domain string) {
+func logSMTP(db *sql.DB, RemoteAddr string) {
 	var lastInsertId int64 = 0
-	err := db.QueryRow("insert into smtp (data, source_ip, time) values ($1, $2, $3) RETURNING id", Domain, RemoteAddr, time.Now().String()).Scan(&lastInsertId)
+	err := db.QueryRow("insert into smtp (data, source_ip, time) values ($1, $2, $3) RETURNING id", DomainData, RemoteAddr, time.Now().String()).Scan(&lastInsertId)
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Println("!!!!!!!!!!!!!!!!!!")
-	log.Println(Data_)
-	log.Println("!!!!!!!!!!!!!!!!!!")
-	telegrambot.BotSendAlert(Domain+"\n "+Data_, RemoteAddr, time.Now().String(), "SMTP", lastInsertId)
+
+	telegrambot.BotSendAlert(DomainData+"\n "+Data_, RemoteAddr, time.Now().String(), "SMTP", lastInsertId)
+}
+
+func DomainParse(rcpt string) string {
+	re := regexp.MustCompile(`@`)
+
+	return re.Split(rcpt, 0-1)[1]
 }

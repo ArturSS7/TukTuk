@@ -2,7 +2,6 @@ package smtplistener
 
 import (
 	smtp "TukTuk/smtplistener/smtpserver"
-	"TukTuk/telegrambot"
 	"database/sql"
 	"errors"
 	"io"
@@ -45,6 +44,7 @@ func (s *Session) Data(r io.Reader) error {
 		return err
 	} else {
 		log.Println("Data:", string(b))
+		smtp.MailData = string(b)
 	}
 	return nil
 }
@@ -61,7 +61,8 @@ func StartSMTP(db *sql.DB, Domain string) {
 	s := smtp.NewServer(be)
 	s.Db = db
 	s.Addr = ":25"
-	s.Domain = "*." + Domain
+	//s.Domain = "*." + Domain
+	s.Domain = "localhost"
 	s.ReadTimeout = 100 * time.Second
 	s.WriteTimeout = 100 * time.Second
 	s.MaxMessageBytes = 1024 * 1024
@@ -69,21 +70,9 @@ func StartSMTP(db *sql.DB, Domain string) {
 	s.AllowInsecureAuth = true
 	s.AuthDisabled = true
 	log.Println("Starting server at", s.Addr)
-	err, RemoteAddr := s.ListenAndServe()
-	log.Println(RemoteAddr)
-	log.Println(Domain)
-	//logSMTP(db, RemoteAddr, s.Domain)
-	if err != nil {
-		log.Fatal(err)
-	}
-}
-
-func logSMTP(db *sql.DB, RemoteAddr, Domain string) {
-	var lastInsertId int64 = 0
-	err := db.QueryRow("insert into smtp (data, source_ip, time) values ($1, $2, $3) RETURNING id", Domain, RemoteAddr, time.Now().String()).Scan(&lastInsertId)
+	err, _ := s.ListenAndServe()
 
 	if err != nil {
 		log.Fatal(err)
 	}
-	telegrambot.BotSendAlert(Domain, RemoteAddr, time.Now().String(), "SMTP", lastInsertId)
 }
