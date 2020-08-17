@@ -61,8 +61,7 @@ func StartSMTP(db *sql.DB, Domain string) {
 	s := smtp.NewServer(be)
 	s.Db = db
 	s.Addr = ":25"
-	//s.Domain = "*." + Domain
-	s.Domain = "localhost"
+	s.Domain = "*." + Domain
 	s.ReadTimeout = 100 * time.Second
 	s.WriteTimeout = 100 * time.Second
 	s.MaxMessageBytes = 1024 * 1024

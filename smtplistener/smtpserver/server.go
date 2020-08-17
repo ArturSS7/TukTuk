@@ -111,7 +111,7 @@ func (s *Server) Serve(l net.Listener) (error, string) {
 	s.locker.Lock()
 	s.listeners = append(s.listeners, l)
 	s.locker.Unlock()
-	var err error
+
 	for {
 		c, err := l.Accept()
 
@@ -125,11 +125,10 @@ func (s *Server) Serve(l net.Listener) (error, string) {
 			}
 		}
 
-		//logSMTP(s.Db, c.RemoteAddr().String(), s.Domain)
 		go s.handleConn(newConn(c, s))
-		//	return err, c.RemoteAddr().String() //??
+
 	}
-	return err, ""
+
 }
 
 func (s *Server) handleConn(c *Conn) error {
