@@ -2,6 +2,7 @@ package smtp
 
 import (
 	"crypto/tls"
+	"database/sql"
 	"errors"
 	"io"
 	"log"
@@ -32,8 +33,8 @@ type Server struct {
 	TLSConfig *tls.Config
 	// Enable LMTP mode, as defined in RFC 2033. LMTP mode cannot be used with a
 	// TCP listener.
-	LMTP bool
-
+	LMTP              bool
+	Db                *sql.DB
 	Domain            string
 	MaxRecipients     int
 	MaxMessageBytes   int
@@ -110,10 +111,9 @@ func (s *Server) Serve(l net.Listener) (error, string) {
 	s.locker.Lock()
 	s.listeners = append(s.listeners, l)
 	s.locker.Unlock()
-	var err error
+
 	for {
 		c, err := l.Accept()
-		go s.handleConn(newConn(c, s))
 
 		if err != nil {
 			select {
@@ -124,9 +124,11 @@ func (s *Server) Serve(l net.Listener) (error, string) {
 				return err, c.RemoteAddr().String()
 			}
 		}
-		return err, c.RemoteAddr().String() //??
+
+		go s.handleConn(newConn(c, s))
+
 	}
-	return err, ""
+
 }
 
 func (s *Server) handleConn(c *Conn) error {

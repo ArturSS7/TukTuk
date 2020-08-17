@@ -1,12 +1,16 @@
 package smtp
 
 import (
+	"TukTuk/database"
+	"TukTuk/telegrambot"
 	"crypto/tls"
+	"database/sql"
 	"encoding/base64"
 	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
+	"log"
 	"net"
 	"net/textproto"
 	"regexp"
@@ -397,12 +401,15 @@ func (c *Conn) handleMail(arg string) {
 	if err := c.Session().Mail(from, opts); err != nil {
 		if smtpErr, ok := err.(*SMTPError); ok {
 			c.WriteResponse(smtpErr.Code, smtpErr.EnhancedCode, smtpErr.Message)
+
 			return
 		}
+
 		c.WriteResponse(451, EnhancedCode{4, 0, 0}, err.Error())
+
 		return
 	}
-
+	Data_ += "From: " + from + "\n"
 	c.WriteResponse(250, EnhancedCode{2, 0, 0}, fmt.Sprintf("Roger, accepting mail from <%v>", from))
 	c.fromReceived = true
 }
@@ -458,6 +465,12 @@ func encodeXtext(raw string) string {
 	return out.String()
 }
 
+/////////////
+var Data_ string
+var MailData string
+var DomainData string
+
+////////
 // MAIL state -> waiting for RCPTs followed by DATA
 func (c *Conn) handleRcpt(arg string) {
 	if !c.fromReceived {
@@ -484,12 +497,15 @@ func (c *Conn) handleRcpt(arg string) {
 
 	if err := c.Session().Rcpt(recipient); err != nil {
 		if smtpErr, ok := err.(*SMTPError); ok {
+
 			c.WriteResponse(smtpErr.Code, smtpErr.EnhancedCode, smtpErr.Message)
 			return
 		}
 		c.WriteResponse(451, EnhancedCode{4, 0, 0}, err.Error())
 		return
 	}
+	Data_ += "To:" + recipient + "\n"
+	DomainData = DomainParse(recipient)
 	c.recipients = append(c.recipients, recipient)
 	c.WriteResponse(250, EnhancedCode{2, 0, 0}, fmt.Sprintf("I'll make sure <%v> gets this", recipient))
 }
@@ -642,12 +658,22 @@ func (c *Conn) handleData(arg string) {
 	}
 
 	r := newDataReader(c)
-	code, enhancedCode, msg := toSMTPStatus(c.Session().Data(r))
+	code, enhancedCode, msg := toSMTPStatus(c.Session().Data(r)) ///
 	r.limited = false
 	io.Copy(ioutil.Discard, r) // Make sure all the data has been consumed
 	c.WriteResponse(code, enhancedCode, msg)
+	Data_ += MailData
+	fmt.Println("")
+	logSMTP(database.DNSDB, c.State().RemoteAddr.String())
 }
+func ConvertData(r io.Reader) (string, error) {
+	if b, err := ioutil.ReadAll(r); err != nil {
+		return "", err
+	} else {
+		return string(b), nil
+	}
 
+}
 func (c *Conn) handleBdat(arg string) {
 	args := strings.Fields(arg)
 	if len(args) == 0 {
@@ -713,6 +739,8 @@ func (c *Conn) handleBdat(arg string) {
 			var err error
 			if !c.server.LMTP {
 				err = c.Session().Data(r)
+				Data_ += MailData
+				logSMTP(database.DNSDB, c.State().RemoteAddr.String())
 			} else {
 				lmtpSession, ok := c.Session().(LMTPSession)
 				if !ok {
@@ -984,4 +1012,20 @@ func (c *Conn) reset() {
 
 	c.fromReceived = false
 	c.recipients = nil
+}
+
+func logSMTP(db *sql.DB, RemoteAddr string) {
+	var lastInsertId int64 = 0
+	err := db.QueryRow("insert into smtp (data, source_ip, time) values ($1, $2, $3) RETURNING id", DomainData+"\n "+Data_, RemoteAddr, time.Now().String()).Scan(&lastInsertId)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	telegrambot.BotSendAlert(DomainData+"\n "+Data_, RemoteAddr, time.Now().String(), "SMTP", lastInsertId)
+}
+
+func DomainParse(rcpt string) string {
+	re := regexp.MustCompile(`@`)
+
+	return re.Split(rcpt, 0-1)[1]
 }
