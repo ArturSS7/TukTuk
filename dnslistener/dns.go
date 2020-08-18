@@ -102,22 +102,25 @@ func Handler(w dns.ResponseWriter, req *dns.Msg) {
 	if err != nil {
 		log.Println(err)
 	}
+	m := new(dns.Msg)
+	m.SetReply(req)
+	m.Compress = false
+	switch req.Opcode {
+	case dns.OpcodeQuery:
+		if question.Qtype == dns.TypeCAA {
+			if question.Name == domain {
+				answerAcmeCAA(m)
+				log.Println("answered acme caa query")
+			}
+		}
+	}
 	if matched {
-		m := new(dns.Msg)
-		m.SetReply(req)
-		m.Compress = false
 		switch req.Opcode {
 		case dns.OpcodeQuery:
 			if question.Qtype == dns.TypeTXT {
 				if question.Name == "_acme-challenge."+domain {
 					answerAcme(m)
 					log.Println("answered acme query")
-				}
-			}
-			if question.Qtype == dns.TypeCAA {
-				if question.Name == domain {
-					answerAcmeCAA(m)
-					log.Println("answered acme caa query")
 				}
 			}
 		}
