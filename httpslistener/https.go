@@ -34,7 +34,7 @@ func StartHTTPS(db *sql.DB) {
 	e.TRACE("*", handleHTTPS)
 	e.CONNECT("*", handleHTTPS)
 	e.Debug = true
-	e.Logger.Fatal(e.StartAutoTLS(":443"))
+	e.Logger.Fatal(e.StartTLS(":443", "", ""))
 }
 
 func handleHTTPS(c echo.Context) error {

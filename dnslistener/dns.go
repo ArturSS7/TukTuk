@@ -37,6 +37,7 @@ func StartDNS(Domain string) {
 	records["*."+domain+"6"] = "::1"
 	records["existing."+domain] = "104.238.177.247"
 	records["existing."+domain+"6"] = "0:0:0:0:0:ffff:68ee:b1f7"
+	records["acme."+domain] = "YMiZEqaP1I_ObLJ8wtF9-UpHZlWAPPdli4xn9hqoFTY"
 	startServer()
 }
 
@@ -107,26 +108,32 @@ func Handler(w dns.ResponseWriter, req *dns.Msg) {
 		m.Compress = false
 		switch req.Opcode {
 		case dns.OpcodeQuery:
-			var result bool
-			re := regexp.MustCompile(`([a-z0-9\-]+\.)` + domain)
-			d := re.Find([]byte(strings.ToLower(question.Name)))
-			fmt.Println(d)
-			rows, err := database.DNSDB.Query("select exists(select domain from dns_domains where domain = $1)", d)
+			if question.Qtype == dns.TypeTXT {
+				if question.Name == "_acme-challenge."+domain {
+					answerAcme(m)
+					log.Println("answered acme query")
+				}
+			}
+		}
+		var result bool
+		re := regexp.MustCompile(`([a-z0-9\-]+\.)` + domain)
+		d := re.Find([]byte(strings.ToLower(question.Name)))
+		fmt.Println(d)
+		rows, err := database.DNSDB.Query("select exists(select domain from dns_domains where domain = $1)", d)
+		if err != nil {
+			log.Println(err)
+		}
+		for rows.Next() {
+			err = rows.Scan(&result)
 			if err != nil {
 				log.Println(err)
 			}
-			for rows.Next() {
-				err = rows.Scan(&result)
-				if err != nil {
-					log.Println(err)
-				}
-			}
-			if result {
-				logDNS(req.String(), w.RemoteAddr().String())
-				answerQuery(m, true)
-			} else {
-				answerQuery(m, false)
-			}
+		}
+		if result {
+			logDNS(req.String(), w.RemoteAddr().String())
+			answerQuery(m, true)
+		} else {
+			answerQuery(m, false)
 		}
 		w.WriteMsg(m)
 	} else {
@@ -137,6 +144,18 @@ func Handler(w dns.ResponseWriter, req *dns.Msg) {
 			log.Println("fail", question.Name)
 		}
 		w.WriteMsg(resp)
+	}
+}
+
+func answerAcme(m *dns.Msg) {
+	for _, q := range m.Question {
+		ip := records["acme."+domain]
+		if ip != "" {
+			rr, err := dns.NewRR(fmt.Sprintf("%s TXT %s", q.Name, ip))
+			if err == nil {
+				m.Answer = append(m.Answer, rr)
+			}
+		}
 	}
 }
 
