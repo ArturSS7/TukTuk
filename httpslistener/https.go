@@ -34,7 +34,7 @@ func StartHTTPS(db *sql.DB) {
 	e.TRACE("*", handleHTTPS)
 	e.CONNECT("*", handleHTTPS)
 	e.Debug = true
-	e.Logger.Fatal(e.StartTLS(":443", "", ""))
+	e.Logger.Fatal(e.StartTLS(":443", "/etc/letsencrypt/live/tt.pwn.bar-0001/fullchain.pem", "/etc/letsencrypt/live/tt.pwn.bar-0001/privkey.pem"))
 }
 
 func handleHTTPS(c echo.Context) error {

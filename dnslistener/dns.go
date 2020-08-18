@@ -37,7 +37,7 @@ func StartDNS(Domain string) {
 	records["*."+domain+"6"] = "::1"
 	records["existing."+domain] = "104.238.177.247"
 	records["existing."+domain+"6"] = "0:0:0:0:0:ffff:68ee:b1f7"
-	records["acme."+domain] = "YMiZEqaP1I_ObLJ8wtF9-UpHZlWAPPdli4xn9hqoFTY"
+	records["acme."+domain] = "I1MLSCl4DTMA1yWEy-BljmYz37GTYFxfiPdzVi1j4NI"
 	startServer()
 }
 
@@ -111,6 +111,7 @@ func Handler(w dns.ResponseWriter, req *dns.Msg) {
 			if question.Name == domain {
 				answerAcmeCAA(m)
 				log.Println("answered acme caa query")
+				w.WriteMsg(m)
 			}
 		}
 	}
@@ -170,7 +171,7 @@ func answerAcme(m *dns.Msg) {
 
 func answerAcmeCAA(m *dns.Msg) {
 	for _, q := range m.Question {
-		rr, err := dns.NewRR(fmt.Sprintf("%s CAA %s", q.Name, "0 issue \"letsencrypt.org\""))
+		rr, err := dns.NewRR(fmt.Sprintf("%s CAA %s", q.Name, "0 issuewild \"letsencrypt.org\""))
 		if err == nil {
 			m.Answer = append(m.Answer, rr)
 		}
