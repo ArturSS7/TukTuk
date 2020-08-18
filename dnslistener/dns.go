@@ -114,6 +114,12 @@ func Handler(w dns.ResponseWriter, req *dns.Msg) {
 					log.Println("answered acme query")
 				}
 			}
+			if question.Qtype == dns.TypeCAA {
+				if question.Name == domain {
+					answerAcmeCAA(m)
+					log.Println("answered acme caa query")
+				}
+			}
 		}
 		var result bool
 		re := regexp.MustCompile(`([a-z0-9\-]+\.)` + domain)
@@ -155,6 +161,15 @@ func answerAcme(m *dns.Msg) {
 			if err == nil {
 				m.Answer = append(m.Answer, rr)
 			}
+		}
+	}
+}
+
+func answerAcmeCAA(m *dns.Msg) {
+	for _, q := range m.Question {
+		rr, err := dns.NewRR(fmt.Sprintf("%s CAA %s", q.Name, "0 issue \"letsencrypt.org\""))
+		if err == nil {
+			m.Answer = append(m.Answer, rr)
 		}
 	}
 }
