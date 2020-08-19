@@ -12,6 +12,7 @@ import (
 	"html"
 	"io/ioutil"
 	"log"
+	"regexp"
 	"time"
 )
 
@@ -40,7 +41,9 @@ func StartHTTPS(db *sql.DB) {
 func handleHTTPS(c echo.Context) error {
 	cc := c.(*database.DBContext)
 	var result bool
-	rows, err := cc.Db.Query("select exists (select id from dns_domains where domain = $1)", fmt.Sprintf("%s.", c.Request().Host))
+	re := regexp.MustCompile(`([a-z0-9\-]+\.tt\.pwn\.bar)`)
+	d := re.Find([]byte(c.Request().Host))
+	rows, err := cc.Db.Query("select exists (select id from dns_domains where domain = $1)", string(d)+".")
 	if err != nil {
 		log.Println(err)
 		return c.String(200, backend.RandStringBytes(8))
