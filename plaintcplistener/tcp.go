@@ -5,7 +5,6 @@ import (
 	"bytes"
 	"database/sql"
 	"fmt"
-	"html"
 	"log"
 	"net"
 	"sync"
@@ -71,27 +70,6 @@ func (s *Server) serve(db *sql.DB, message string, port string) {
 	}
 }
 
-/*
-func StartTCP(db *sql.DB, message string, port string) error{
-	listener, err := net.Listen("tcp", ":"+port)
-	if err != nil {
-		log.Println(err)
-		return err
-	}
-	TCPServers[port] = listener
-	for {
-		conn, err := listener.Accept()
-		log.Printf("[*] Connection Accepted from [%s]\n", conn.RemoteAddr().String())
-		if err != nil {
-			log.Print(err)
-			continue
-		}
-		go handleTCP(conn, db, message, port)
-	}
-}
-
-*/
-
 func (s *Server) handleTCP(c *Conn) {
 	defer c.log()
 	defer c.conn.Close()
@@ -130,7 +108,7 @@ func newConn(conn net.Conn, db *sql.DB, message string, port string) *Conn {
 //logging to database
 func (c *Conn) log() {
 	var lastInsertId int64 = 0
-	err := c.db.QueryRow("insert into tcp (data, source_ip, time, port) values ($1, $2, $3, $4) RETURNING id", html.EscapeString(c.data.String()), c.conn.RemoteAddr().String(), time.Now().String(), c.port).Scan(&lastInsertId)
+	err := c.db.QueryRow("insert into tcp (data, source_ip, time, port) values ($1, $2, $3, $4) RETURNING id", c.data.String(), c.conn.RemoteAddr().String(), time.Now().String(), c.port).Scan(&lastInsertId)
 	if err != nil {
 		log.Println(err)
 	}

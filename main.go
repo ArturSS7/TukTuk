@@ -4,7 +4,6 @@ import (
 	"TukTuk/backend"
 	"TukTuk/database"
 	"TukTuk/dnslistener"
-	"TukTuk/ftplistener"
 	"TukTuk/httplistener"
 	"TukTuk/smtplistener"
 	"TukTuk/telegrambot"
@@ -22,9 +21,6 @@ func main() {
 
 	//start https server
 	//go httpslistener.StartHTTPS(db)
-
-	//start ftp server
-	go ftplistener.StartFTP(db)
 
 	//start dns server
 	go dnslistener.StartDNS(domain)
