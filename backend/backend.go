@@ -81,6 +81,7 @@ func StartBack(db *sql.DB, Domain string) {
 	credentials.username = "dsec"
 	credentials.password = "tuktuk"
 	e.File("/", "frontend/index.html", loginRequired)
+	e.File("/tcp", "frontend/tcp.html", loginRequired)
 	e.File("/dns", "frontend/dns.html", loginRequired)
 	e.Static("/static", "frontend/static/")
 	e.GET("/api/:proto", getRequests, loginRequired)

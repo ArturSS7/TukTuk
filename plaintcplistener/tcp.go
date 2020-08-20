@@ -78,7 +78,7 @@ func (s *Server) handleTCP(c *Conn) {
 		if len(scanner.Text()) == 0 {
 			continue
 		}
-		fmt.Fprintf(c.data, scanner.Text())
+		fmt.Fprintf(c.data, "<<%s\n", scanner.Text())
 		c.respond(c.message)
 	}
 	if scanner.Err() != nil {

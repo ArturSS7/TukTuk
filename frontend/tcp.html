@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>TukTuk</title>
+    <link rel="stylesheet" href ="static/css/styles.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="https://unpkg.com/vue"></script>
+</head>
+<body>
+<div id="app" class="container mt-4">
+    <div class="float-left">
+        <button type="button" @click="isHidden=false" class="btn btn-outline-primary">Start new TCP server</button>
+        <div v-if="!isHidden" class="form-group col-sm-8">
+            <label for="inputPort">Port</label>
+            <input type="text" class="form-control" id="inputPort" v-model="port">
+            <label for="inputMessage">Message</label>
+            <input type="text" class="form-control" id="inputMessage" v-model="message">
+            <br>
+            <button type="button" class="btn btn-primary btn-sm" @click="StartTCP(port, message)">Start</button>
+        </div>
+        <p v-if="start_success === true">TCP server successfully started on port {{port}}</p>
+        <p v-if="start_success === false">Failed to start TCP server on port {{port}}</p>
+        <br>
+        <br>
+        <button type="button" @click="StopIsHidden=false" class="btn btn-outline-primary">Stop running TCP server</button>
+        <div v-if="!StopIsHidden" class="form-group col-sm-8">
+            <label for="inputPort">Port</label>
+            <input type="text" class="form-control" v-model="stop_port">
+            <br>
+            <button type="button" class="btn btn-primary btn-sm" @click="StopTCP(stop_port)">Stop</button>
+        </div>
+        <p v-if="stop_success === true">TCP server successfully stopped on port {{stop_port}}</p>
+        <p v-if="stop_success === false">Failed to stop TCP server on port {{stop_port}}</p>
+        <br>
+        <br>
+        <button type="button" @click="GetRunningTCP()" class="btn btn-outline-primary">Get running TCP servers</button>
+        <table v-if="!RunningIsHidden" class="table table-bordered">
+            <thead>
+            <tr>
+                <th scope="col">Running Port</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr v-for="server in running_tcp">
+                <td>{{server}}</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="float-right">
+        <button type="button" @click="TcpIsHidden=false" class="btn btn-outline-primary">Get Tcp Data</button>
+        <div v-if="!TcpIsHidden" class="form-group col-sm-8">
+            <label for="inputPort">Port //leave blank to get all data</label>
+            <input type="text" class="form-control" id="inputPort" v-model="tcp_port">
+            <br>
+            <button type="button" class="btn btn-primary btn-sm" @click="GetTCP(tcp_port)">Get</button>
+        </div>
+        <table v-if="!TcpIsHidden" class="table table-bordered">
+            <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Request</th>
+                <th scope="col">Source IP</th>
+                <th scope="col">Time</th>
+                <th scope="col">Dst Port</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr v-for="request in tcp_req">
+                <th scope="row">{{request.id}}</th>
+                <td style="white-space:pre">{{request.data}}</td>
+                <td>{{request.source_ip}}</td>
+                <td>{{request.time}}</td>
+                <td>{{request.port}}</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <script src="static/js/main.js"></script>
+</div>
+</body>
+</html>
