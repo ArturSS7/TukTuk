@@ -89,11 +89,13 @@ func StartBack(db *sql.DB, Domain string) {
 	e.POST("/api/tcp/new", startPlainTCP, loginRequired)
 	e.GET("/api/tcp/data", getTCPResults, loginRequired)
 	e.POST("/api/tcp/shutdown", stopTCPServer, loginRequired)
+	e.GET("/api/tcp/running", getRunningTCPServers, loginRequired)
 	e.POST("/api/ftp/start", startFTP, loginRequired)
 	e.POST("/api/ftp/shutdown", shutdownFTP, loginRequired)
 	e.GET("/login", loginPage)
 	e.POST("/login", handleLogin)
 	e.GET("/api/dns/available", getAvailableDomains, loginRequired)
+	e.HideBanner = true
 	e.Debug = true
 	e.Logger.Fatal(e.Start(":1234"))
 }
@@ -394,6 +396,18 @@ func stopTCPServer(c echo.Context) error {
 			Success: false,
 		})
 	}
+}
+
+type TcpServers struct {
+	Servers []string `json:"servers"`
+}
+
+func getRunningTCPServers(c echo.Context) error {
+	ts := &TcpServers{}
+	for v := range plaintcplistener.TCPServers {
+		ts.Servers = append(ts.Servers, v)
+	}
+	return c.JSON(200, ts)
 }
 
 func startFTP(c echo.Context) error {

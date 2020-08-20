@@ -34,6 +34,7 @@ func StartHTTPS(db *sql.DB) {
 	e.PATCH("*", handleHTTPS)
 	e.TRACE("*", handleHTTPS)
 	e.CONNECT("*", handleHTTPS)
+	e.HideBanner = true
 	e.Debug = true
 	e.Logger.Fatal(e.StartTLS(":443", "/etc/letsencrypt/live/tt.pwn.bar-0001/fullchain.pem", "/etc/letsencrypt/live/tt.pwn.bar-0001/privkey.pem"))
 }
