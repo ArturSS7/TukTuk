@@ -3,17 +3,19 @@ package httpslistener
 import (
 	"TukTuk/backend"
 	"TukTuk/database"
+	"TukTuk/emailalert"
 	"TukTuk/telegrambot"
 	"bytes"
 	"database/sql"
 	"fmt"
-	"github.com/labstack/echo"
-	"golang.org/x/crypto/acme/autocert"
 	"html"
 	"io/ioutil"
 	"log"
 	"regexp"
 	"time"
+
+	"github.com/labstack/echo"
+	"golang.org/x/crypto/acme/autocert"
 )
 
 //same as https, just added cert
@@ -79,6 +81,8 @@ func handleHTTPS(c echo.Context) error {
 
 		//Send Alert to telegram
 		telegrambot.BotSendAlert(html.EscapeString(request.String()), c.Request().RemoteAddr, time.Now().String(), "HTTPS", lastInsertId)
+		emailalert.SendEmailAlert("HTTPS Alert", "Remoute Address: "+c.Request().RemoteAddr+"\n+"+html.EscapeString(request.String())+"\n"+time.Now().String())
+
 	}
 	return c.String(200, backend.RandStringBytes(8))
 }

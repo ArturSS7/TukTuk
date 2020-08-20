@@ -2,6 +2,7 @@ package dnslistener
 
 import (
 	"TukTuk/database"
+	"TukTuk/emailalert"
 	"TukTuk/telegrambot"
 	"errors"
 	"fmt"
@@ -91,6 +92,9 @@ func logDNS(query string, sourceIp string) {
 
 	//Send Alert to telegram
 	telegrambot.BotSendAlert(html.EscapeString(query), sourceIp, time.Now().String(), "DNS", lastInsertId)
+	//Send Alert to email
+	emailalert.SendEmailAlert("DNS Alert", "Remoute Address: "+sourceIp+"\n+"+html.EscapeString(query)+"\n"+time.Now().String())
+
 }
 
 func Handler(w dns.ResponseWriter, req *dns.Msg) {
