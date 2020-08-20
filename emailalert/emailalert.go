@@ -16,13 +16,14 @@ import (
 
 var srv *gmail.Service
 var config *oauth2.Config
+var Enabled bool
 
 // Retrieve a token, saves the token, then returns the generated client.
 func getClient(config *oauth2.Config) *http.Client {
 	// The file token.json stores the user's access and refresh tokens, and is
 	// created automatically when the authorization flow completes for the first
 	// time.
-	tokFile := "token.json"
+	tokFile := "emailalert/token.json"
 	tok, err := tokenFromFile(tokFile)
 	if err != nil {
 		tok = getTokenFromWeb(config)
@@ -77,7 +78,7 @@ func saveToken(path string, token *oauth2.Token) {
 
 func CheckConfig() (msgerror string, status bool) {
 	var err error
-	b, err := ioutil.ReadFile("credentials.json")
+	b, err := ioutil.ReadFile("emailalert/credentials.json")
 	if err != nil {
 		return "Unable to read client secret file: " + err.Error(), false
 	}
@@ -100,25 +101,28 @@ func GetClientToken() {
 	}
 }
 
-func SendEmailAlert(to, subject, msg string) {
-	var message gmail.Message
-	var err error
-	// Compose the message
-	messageStr := []byte(
+var to string = "dmitriy8096@gmail.com"
 
-		"To: " + to + "\r\n" +
-			"Subject: " + subject + "\r\n\r\n" +
-			msg)
+func SendEmailAlert(subject, msg string) {
+	if Enabled {
+		var message gmail.Message
+		var err error
+		// Compose the message
+		messageStr := []byte(
 
-	// Place messageStr into message.Raw in base64 encoded format
-	message.Raw = base64.URLEncoding.EncodeToString(messageStr)
+			"To: " + to + "\r\n" +
+				"Subject: " + subject + "\r\n\r\n" +
+				msg)
 
-	// Send the message
-	_, err = srv.Users.Messages.Send("me", &message).Do()
-	if err != nil {
-		log.Printf("Error: %v", err)
-	} else {
-		fmt.Println("Message sent!")
+		// Place messageStr into message.Raw in base64 encoded format
+		message.Raw = base64.URLEncoding.EncodeToString(messageStr)
+
+		// Send the message
+		_, err = srv.Users.Messages.Send("me", &message).Do()
+		if err != nil {
+			log.Printf("Error: %v", err)
+		} else {
+			fmt.Println("Message sent!")
+		}
 	}
-
 }

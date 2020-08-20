@@ -3,6 +3,7 @@ package httplistener
 import (
 	"TukTuk/backend"
 	"TukTuk/database"
+	"TukTuk/emailalert"
 	"TukTuk/telegrambot"
 	"bytes"
 	"database/sql"
@@ -82,6 +83,7 @@ func handleHTTP(c echo.Context) error {
 
 		//Send Alert to telegram
 		telegrambot.BotSendAlert(html.EscapeString(request.String()), c.Request().RemoteAddr, time.Now().String(), "HTTP", lastInsertId)
+		emailalert.SendEmailAlert( "HTTP Alert", "Remoute Address"+c.Request().RemoteAddr+"\n+"+html.EscapeString(request.String())+"\n"+time.Now().String())
 	}
 	return c.String(200, backend.RandStringBytes(8))
 }

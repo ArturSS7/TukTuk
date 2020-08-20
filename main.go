@@ -4,11 +4,13 @@ import (
 	"TukTuk/backend"
 	"TukTuk/database"
 	"TukTuk/dnslistener"
+	"TukTuk/emailalert"
 	"TukTuk/ftplistener"
 	"TukTuk/httplistener"
 	"TukTuk/httpslistener"
 	"TukTuk/smtplistener"
 	"TukTuk/telegrambot"
+	"log"
 )
 
 func main() {
@@ -17,6 +19,13 @@ func main() {
 	domain := "tt.pwn.bar."
 	//start telegram bot
 	telegrambot.BotStart()
+	emailalert.Enabled = true
+	if err, res := emailalert.CheckConfig(); res && emailalert.Enabled {
+		emailalert.GetClientToken()
+	} else {
+		log.Println(err)
+		emailalert.Enabled = false
+	}
 
 	//start http server
 	go httplistener.StartHTTP(db)
