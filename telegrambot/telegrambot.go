@@ -32,6 +32,7 @@ func BotStart() {
 }
 
 var SettingBot Option
+var Enabled bool
 
 func BotSendAlert(data, source_ip, time, ProtocolName string, id int64) {
 	bot, err := tgbotapi.NewBotAPI(SettingBot.Token)

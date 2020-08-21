@@ -17,9 +17,13 @@ func main() {
 	//connect to database
 	db := database.Connect()
 	domain := "tt.pwn.bar."
-	//start telegram bot
-	telegrambot.BotStart()
+
 	emailalert.Enabled = true
+	telegrambot.Enabled = true
+	if telegrambot.Enabled {
+		//start telegram bot
+		telegrambot.BotStart()
+	}
 	if err, res := emailalert.CheckConfig(); res && emailalert.Enabled {
 		emailalert.GetClientToken()
 	} else {
