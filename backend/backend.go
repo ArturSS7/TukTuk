@@ -6,6 +6,7 @@ import (
 	"TukTuk/plaintcplistener"
 	"database/sql"
 	"fmt"
+	"golang.org/x/crypto/acme/autocert"
 	"html/template"
 	"io"
 	"log"
@@ -70,6 +71,7 @@ func StartBack(db *sql.DB, Domain string) {
 		templates: template.Must(template.ParseGlob("frontend/templates/*")),
 	}
 	secret := []byte("#JVb0VYu*3j!8oQmOtZK")
+	e.AutoTLSManager.Cache = autocert.DirCache("/var/www/.cache")
 	e.Use(session.Middleware(sessions.NewCookieStore(secret)))
 	e.Renderer = t
 	e.Use(func(h echo.HandlerFunc) echo.HandlerFunc {
@@ -98,7 +100,7 @@ func StartBack(db *sql.DB, Domain string) {
 	e.GET("/api/dns/available", getAvailableDomains, loginRequired)
 	e.HideBanner = true
 	e.Debug = true
-	e.Logger.Fatal(e.Start(":1234"))
+	e.Logger.Fatal(e.StartAutoTLS(":1234"))
 }
 
 //handler for getting requests from database
@@ -399,14 +401,15 @@ func stopTCPServer(c echo.Context) error {
 	}
 }
 
-type TcpServers struct {
-	Servers []string `json:"servers"`
+type TcpServer struct {
+	Port string `json:"port"`
 }
 
 func getRunningTCPServers(c echo.Context) error {
-	ts := &TcpServers{}
+	ts := make([]TcpServer, 0)
 	for v := range plaintcplistener.TCPServers {
-		ts.Servers = append(ts.Servers, v)
+		t := TcpServer{Port: v}
+		ts = append(ts, t)
 	}
 	return c.JSON(200, ts)
 }
