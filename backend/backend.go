@@ -6,6 +6,7 @@ import (
 	"TukTuk/plaintcplistener"
 	"database/sql"
 	"fmt"
+	"github.com/labstack/echo/middleware"
 	"golang.org/x/crypto/acme/autocert"
 	"html/template"
 	"io"
@@ -82,6 +83,7 @@ func StartBack(db *sql.DB, Domain string) {
 	})
 	credentials.username = "dsec"
 	credentials.password = "tuktuk"
+	e.Pre(middleware.HTTPSRedirect())
 	e.File("/", "frontend/index.html", loginRequired)
 	e.File("/tcp", "frontend/tcp.html", loginRequired)
 	e.File("/dns", "frontend/dns.html", loginRequired)
