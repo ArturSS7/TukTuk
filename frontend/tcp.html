@@ -7,10 +7,12 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <script src="https://unpkg.com/vue"></script>
+    <title>TukTuk</title>
 </head>
 <body>
 <div id="app" class="container mt-4">
-    <div class="float-left">
+    <h1 class="text-center">TCP Management</h1>
+    <div style="width: 30%" class="float-left">
         <button type="button" @click="isHidden=false" class="btn btn-outline-primary">Start new TCP server</button>
         <div v-if="!isHidden" class="form-group col-sm-8">
             <label for="inputPort">Port</label>
@@ -39,7 +41,7 @@
         <table v-if="!RunningIsHidden" class="table table-bordered">
             <thead>
             <tr>
-                <th scope="col">Running Port</th>
+                <th style="width: 200px" scope="col">Running Port</th>
             </tr>
             </thead>
             <tbody>
@@ -49,7 +51,7 @@
             </tbody>
         </table>
     </div>
-    <div class="float-right">
+    <div style="width: 70%" class="float-right">
         <button type="button" @click="TcpIsHidden=false" class="btn btn-outline-primary">Get Tcp Data</button>
         <div v-if="!TcpIsHidden" class="form-group col-sm-8">
             <label for="inputPort">Port //leave blank to get all data</label>
