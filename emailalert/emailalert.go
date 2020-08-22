@@ -18,7 +18,8 @@ var srv *gmail.Service
 var config *oauth2.Config
 var Enabled bool
 
-func EmailAlertStart() {
+func EmailAlertStart(Enabled_ bool) {
+	Enabled = Enabled_
 	if err, res := CheckConfig(); res && Enabled {
 		GetClientToken()
 	} else {

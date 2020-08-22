@@ -1,6 +1,7 @@
 package telegrambot
 
 import (
+	"TukTuk/startinitialization"
 	"database/sql"
 	"encoding/json"
 	"fmt"
@@ -20,35 +21,30 @@ type content struct {
 	source_ip string
 	time      string
 }
-type Option struct {
-	Token       string
-	ChatID      int64
-	LenghtAlert string
-}
 
 //BotStart Start Telegram Bot
 func BotStart() {
-	parseConfig()
+	SettingBot = startinitialization.Settings.Telegrambot
 }
 
-var SettingBot Option
-var Enabled bool
+var SettingBot startinitialization.TelegramSetting
 
 func BotSendAlert(data, source_ip, time, ProtocolName string, id int64) {
-	bot, err := tgbotapi.NewBotAPI(SettingBot.Token)
-	if err != nil {
-		log.Panic(err)
+	if SettingBot.Enabled {
+		bot, err := tgbotapi.NewBotAPI(SettingBot.Token)
+		if err != nil {
+			log.Panic(err)
+		}
+		_cont := content{data, source_ip, time}
+		bot.Debug = true
+
+		log.Printf("Authorized on account %s", bot.Self.UserName)
+
+		responce := tgbotapi.NewMessage(SettingBot.ChatID, messageFormation(_cont, ProtocolName, id))
+		responce.ParseMode = "markdown"
+		responce.DisableWebPagePreview = true
+		bot.Send(responce)
 	}
-	_cont := content{data, source_ip, time}
-	bot.Debug = true
-
-	log.Printf("Authorized on account %s", bot.Self.UserName)
-
-	responce := tgbotapi.NewMessage(SettingBot.ChatID, messageFormation(_cont, ProtocolName, id))
-	responce.ParseMode = "markdown"
-	responce.DisableWebPagePreview = true
-	bot.Send(responce)
-
 }
 
 //BotSendAlert_BD function start the bot and sends the message read from the database
@@ -105,7 +101,7 @@ func messageFormation(ContentFormation content, ProtocolName string, id int64) s
 // 	return re.Split(str, -1)[0]
 // }
 
-func readConfig() []byte {
+func readConfig() []byte { ///
 	var fileData []byte
 	file, err := os.Open("telegrambot/Config.json")
 	if err != nil {
@@ -127,7 +123,7 @@ func readConfig() []byte {
 	return fileData
 }
 
-func parseConfig() {
+func parseConfig() { ///
 	b := readConfig()
 
 	err := json.Unmarshal(b, &SettingBot)
