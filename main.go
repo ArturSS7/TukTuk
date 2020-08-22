@@ -10,7 +10,6 @@ import (
 	"TukTuk/httpslistener"
 	"TukTuk/smtplistener"
 	"TukTuk/telegrambot"
-	"log"
 )
 
 func main() {
@@ -18,18 +17,13 @@ func main() {
 	db := database.Connect()
 	domain := "tt.pwn.bar."
 
+	//start telegram bot
+	telegrambot.BotStart()
+
 	emailalert.Enabled = true
 	telegrambot.Enabled = true
-	if telegrambot.Enabled {
-		//start telegram bot
-		telegrambot.BotStart()
-	}
-	if err, res := emailalert.CheckConfig(); res && emailalert.Enabled {
-		emailalert.GetClientToken()
-	} else {
-		log.Println(err)
-		emailalert.Enabled = false
-	}
+
+	emailalert.EmailAlertStart()
 
 	//start http server
 	go httplistener.StartHTTP(db)

@@ -18,6 +18,16 @@ var srv *gmail.Service
 var config *oauth2.Config
 var Enabled bool
 
+func EmailAlertStart() {
+	if err, res := CheckConfig(); res && Enabled {
+		GetClientToken()
+	} else {
+		log.Println(err)
+		Enabled = false
+	}
+
+}
+
 // Retrieve a token, saves the token, then returns the generated client.
 func getClient(config *oauth2.Config) *http.Client {
 	// The file token.json stores the user's access and refresh tokens, and is
