@@ -1021,7 +1021,7 @@ func logSMTP(db *sql.DB, RemoteAddr string) {
 		log.Fatal(err)
 	}
 
-	telegrambot.BotSendAlert(DomainData+"\n "+Data_, RemoteAddr, time.Now().String(), "SMTP", lastInsertId)
+	telegrambot.BotSendAlert(" Domain: "+DomainData+"\n "+Data_, RemoteAddr, time.Now().String(), "SMTP", lastInsertId)
 }
 
 func DomainParse(rcpt string) string {

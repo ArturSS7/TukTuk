@@ -85,9 +85,9 @@ func readDB(tableName string, db *sql.DB, id int64) string {
 func messageFormation(ContentFormation content, ProtocolName string, id int64) string {
 	var request string
 	if SettingBot.LenghtAlert == "Long" {
-		request = ContentFormation.data + "\n" + ContentFormation.source_ip + "\n" + ContentFormation.time + "\n\nLink: http://127.0.0.1:1234/api/request/" + strings.ToLower(ProtocolName) + "?id=" + strconv.Itoa(int(id))
+		request = "`" + ContentFormation.data + "\n" + ContentFormation.source_ip + "\n" + ContentFormation.time + "`\n\nLink: https://pwn.bar:1234/api/request/" + strings.ToLower(ProtocolName) + "?id=" + strconv.Itoa(int(id))
 	} else {
-		request = "Received " + ProtocolName + " request from IP: `" + ContentFormation.source_ip + "`\n\nLink: http://pwn.bar:1234/api/request/" + strings.ToLower(ProtocolName) + "?id=" + strconv.Itoa(int(id))
+		request = "Received " + ProtocolName + " request from IP: `" + ContentFormation.source_ip + "`\n\nLink: https://pwn.bar:1234/api/request/" + strings.ToLower(ProtocolName) + "?id=" + strconv.Itoa(int(id))
 	}
 	if ProtocolName == "DNS" {
 		request += "\nFrom Domain: `" + ParseDomainDNS(ContentFormation.data) + "`"
