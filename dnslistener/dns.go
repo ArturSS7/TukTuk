@@ -3,6 +3,7 @@ package dnslistener
 import (
 	"TukTuk/database"
 	"TukTuk/emailalert"
+	"TukTuk/startinitialization"
 	"TukTuk/telegrambot"
 	"errors"
 	"fmt"
@@ -106,7 +107,13 @@ func Handler(w dns.ResponseWriter, req *dns.Msg) {
 	if err != nil {
 		log.Println(err)
 	}
+
+	r := new(dns.MX)
+	r.Mx = startinitialization.Settings.Domain
+	r.Hdr = dns.RR_Header{Name: "*" + r.Mx, Rrtype: dns.TypeMX, Class: dns.ClassINET, Ttl: 3600}
+	r.Preference = 10
 	m := new(dns.Msg)
+	m.SetQuestion(r.String(), dns.TypeMX)
 	m.SetReply(req)
 	m.Compress = false
 	switch req.Opcode {
