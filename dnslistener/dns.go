@@ -220,25 +220,7 @@ func answerQuery(m *dns.Msg, resolveIP bool) {
 					m.Answer = append(m.Answer, rr)
 				}
 			}
-		case dns.TypeMX:
-			log.Printf("mx query for %s\n", q.Name)
 
-			ip := ""
-			if resolveIP {
-				ip = records["existing."+domain+"6"]
-			} else {
-				ip = records["*."+domain]
-			}
-
-			if ip != "" {
-				rr, err := dns.NewRR(fmt.Sprintf("%s MX 10 %s", q.Name, ip))
-				if err != nil {
-					log.Println(err)
-				}
-				if err == nil {
-					m.Answer = append(m.Answer, rr)
-				}
-			}
 		}
 	}
 }
