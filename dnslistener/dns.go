@@ -239,7 +239,7 @@ func answerQuery(m *dns.Msg, resolveIP bool) {
 			}
 
 			if ip != "" {
-				rr, err := dns.NewRR(fmt.Sprintf("%s MX 10 %s", q.Name, ip))
+				rr, err := dns.NewRR(fmt.Sprintf("%s MX 10 %s", q.Name, "pwn.bar"))
 				if err != nil {
 					log.Println(err)
 				}
