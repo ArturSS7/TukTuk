@@ -18,7 +18,7 @@ func main() {
 	domain := startinitialization.Settings.Domain
 	//start telegram bot
 	telegrambot.BotStart()
-	emailalert.EmailAlertStart(startinitialization.Settings.EmailAlert.Enabled)
+	emailalert.EmailAlertStart(startinitialization.Settings.EmailAlert.Enabled, startinitialization.Settings.EmailAlert.To)
 
 	//connect to database
 	db := database.Connect()

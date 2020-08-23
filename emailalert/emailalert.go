@@ -17,10 +17,12 @@ import (
 var srv *gmail.Service
 var config *oauth2.Config
 var Enabled bool
+var to string = "dmitriy8096@gmail.com"
 
-func EmailAlertStart(Enabled_ bool) {
+func EmailAlertStart(Enabled_ bool, to_ string) {
 	Enabled = Enabled_
 	if err, res := CheckConfig(); res && Enabled {
+		to = to_
 		GetClientToken()
 	} else {
 		log.Println(err)
@@ -111,8 +113,6 @@ func GetClientToken() {
 		log.Fatalf("Unable to retrieve Gmail client: %v", err)
 	}
 }
-
-var to string = "dmitriy8096@gmail.com"
 
 func SendEmailAlert(subject, msg string) {
 	if Enabled {
