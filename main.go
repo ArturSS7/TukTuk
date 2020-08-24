@@ -4,18 +4,24 @@ import (
 	"TukTuk/backend"
 	"TukTuk/database"
 	"TukTuk/dnslistener"
+	"TukTuk/emailalert"
+	"TukTuk/ftplistener"
 	"TukTuk/httplistener"
 	"TukTuk/httpslistener"
 	"TukTuk/smtplistener"
+	"TukTuk/startinitialization"
 	"TukTuk/telegrambot"
 )
 
 func main() {
-	//connect to database
-	db := database.Connect()
-	domain := "tt.pwn.bar."
+	startinitialization.StartInit()
+	domain := startinitialization.Settings.Domain
 	//start telegram bot
 	telegrambot.BotStart()
+	emailalert.EmailAlertStart(startinitialization.Settings.EmailAlert.Enabled, startinitialization.Settings.EmailAlert.To)
+
+	//connect to database
+	db := database.Connect()
 
 	//start http server
 	go httplistener.StartHTTP(db)

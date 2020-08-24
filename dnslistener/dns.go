@@ -2,6 +2,8 @@ package dnslistener
 
 import (
 	"TukTuk/database"
+	"TukTuk/emailalert"
+	"TukTuk/startinitialization"
 	"TukTuk/telegrambot"
 	"errors"
 	"fmt"
@@ -91,6 +93,9 @@ func logDNS(query string, sourceIp string) {
 
 	//Send Alert to telegram
 	telegrambot.BotSendAlert(html.EscapeString(query), sourceIp, time.Now().String(), "DNS", lastInsertId)
+	//Send Alert to email
+	emailalert.SendEmailAlert("DNS Alert", "Remoute Address: "+sourceIp+"\n+"+html.EscapeString(query)+"\n"+time.Now().String())
+
 }
 
 func Handler(w dns.ResponseWriter, req *dns.Msg) {
@@ -102,7 +107,13 @@ func Handler(w dns.ResponseWriter, req *dns.Msg) {
 	if err != nil {
 		log.Println(err)
 	}
+
+	r := new(dns.MX)
+	r.Mx = startinitialization.Settings.Domain
+	r.Hdr = dns.RR_Header{Name: "*" + r.Mx, Rrtype: dns.TypeMX, Class: dns.ClassINET, Ttl: 3600}
+	r.Preference = 10
 	m := new(dns.Msg)
+	m.SetQuestion(r.String(), dns.TypeMX)
 	m.SetReply(req)
 	m.Compress = false
 	switch req.Opcode {
@@ -216,6 +227,28 @@ func answerQuery(m *dns.Msg, resolveIP bool) {
 					m.Answer = append(m.Answer, rr)
 				}
 			}
+
+		case dns.TypeMX:
+			log.Printf("mx query for %s\n", q.Name)
+
+			ip := ""
+			if resolveIP {
+				ip = records["existing."+domain+"6"]
+			} else {
+				ip = records["*."+domain]
+			}
+
+			if ip != "" {
+				rr, err := dns.NewRR(fmt.Sprintf("%s MX 10 %s", q.Name, "pwn.bar"))
+
+				if err != nil {
+					log.Println(err)
+				}
+				if err == nil {
+					m.Answer = append(m.Answer, rr)
+				}
+			}
+
 		}
 	}
 }

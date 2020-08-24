@@ -2,6 +2,7 @@ package smtp
 
 import (
 	"TukTuk/database"
+	"TukTuk/emailalert"
 	"TukTuk/telegrambot"
 	"crypto/tls"
 	"database/sql"
@@ -663,7 +664,7 @@ func (c *Conn) handleData(arg string) {
 	io.Copy(ioutil.Discard, r) // Make sure all the data has been consumed
 	c.WriteResponse(code, enhancedCode, msg)
 	Data_ += MailData
-	fmt.Println("")
+
 	logSMTP(database.DNSDB, c.State().RemoteAddr.String())
 }
 func ConvertData(r io.Reader) (string, error) {
@@ -1020,8 +1021,11 @@ func logSMTP(db *sql.DB, RemoteAddr string) {
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	telegrambot.BotSendAlert(" Domain: "+DomainData+"\n "+Data_, RemoteAddr, time.Now().String(), "SMTP", lastInsertId)
+  
+	//Send Alert to telegram
+	telegrambot.BotSendAlert(DomainData+"\n "+Data_, RemoteAddr, time.Now().String(), "SMTP", lastInsertId)
+	//Send Alert to email
+	emailalert.SendEmailAlert("SMTP Alert", "Remoute Address: "+RemoteAddr+"\n+"+DomainData+"\n "+Data_+"\n"+time.Now().String())
 }
 
 func DomainParse(rcpt string) string {
