@@ -5,7 +5,6 @@ import (
 	"TukTuk/database"
 	"TukTuk/dnslistener"
 	"TukTuk/emailalert"
-	"TukTuk/ftplistener"
 	"TukTuk/httplistener"
 	"TukTuk/httpslistener"
 	"TukTuk/smtplistener"
