@@ -3,11 +3,8 @@ package telegrambot
 import (
 	"TukTuk/startinitialization"
 	"database/sql"
-	"encoding/json"
 	"fmt"
-	"io"
 	"log"
-	"os"
 	"regexp"
 	"strconv"
 	"strings"
@@ -100,37 +97,6 @@ func messageFormation(ContentFormation content, ProtocolName string, id int64) s
 // 	re := regexp.MustCompile(":")
 // 	return re.Split(str, -1)[0]
 // }
-
-func readConfig() []byte { ///
-	var fileData []byte
-	file, err := os.Open("telegrambot/Config.json")
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
-	defer file.Close()
-	data := make([]byte, 64)
-
-	for {
-		n, err := file.Read(data)
-		if err == io.EOF {
-			break
-		}
-
-		fileData = append(fileData, data[:n]...)
-
-	}
-	return fileData
-}
-
-func parseConfig() { ///
-	b := readConfig()
-
-	err := json.Unmarshal(b, &SettingBot)
-	if err != nil {
-		panic(err)
-	}
-}
 
 func ParseDomainDNS(data string) string {
 	re := regexp.MustCompile(`QUESTION SECTION:\n.+IN`)

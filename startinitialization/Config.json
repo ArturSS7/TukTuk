@@ -11,7 +11,7 @@
   },
   "Domain":"tt.pwn.bar.",
   "EmailAlert":{
-    "Enabled":true,
+    "Enabled":false,
     "To":"xxx@gmail.com"
   }
 }
