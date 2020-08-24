@@ -13,7 +13,7 @@ import (
 
 func Start(domain string) {
 	//ldap logger
-	ldap.Logger = log.New(os.Stdout, "[LDAP Server] ", log.LstdFlags)
+	log.Println(os.Stdout, "[LDAP Server] ", log.LstdFlags)
 
 	//Create a new LDAP Server
 	server := ldap.NewServer()
@@ -23,7 +23,7 @@ func Start(domain string) {
 	server.Handle(routes)
 
 	// listen on 10389
-	go server.ListenAndServe(domain + ":10389")
+	go server.ListenAndServe("pwn.bar:10389")
 
 	// When CTRL+C, SIGINT and SIGTERM signal occurs
 	// Then stop server gracefully
