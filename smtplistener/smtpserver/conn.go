@@ -1021,11 +1021,11 @@ func logSMTP(db *sql.DB, RemoteAddr string) {
 	if err != nil {
 		log.Fatal(err)
 	}
+  
 	//Send Alert to telegram
 	telegrambot.BotSendAlert(DomainData+"\n "+Data_, RemoteAddr, time.Now().String(), "SMTP", lastInsertId)
 	//Send Alert to email
 	emailalert.SendEmailAlert("SMTP Alert", "Remoute Address: "+RemoteAddr+"\n+"+DomainData+"\n "+Data_+"\n"+time.Now().String())
-
 }
 
 func DomainParse(rcpt string) string {

@@ -13,6 +13,10 @@
     <div class="text-center">
         <a href="/dns">DNS management</a>
     </div>
+    <br>
+    <div class="text-center">
+        <a href="/tcp">TCP management</a>
+    </div>
         <div id="app" class="container mt-4">
             <div class="buttons">
                 <button @click="getData('http')" type="button" class="btn btn-outline-primary">HTTP</button>
@@ -22,6 +26,7 @@
                 <button @click="getData('smtp')" type="button" class="btn btn-outline-primary">SMTP</button>
                 <button type="button" class="btn btn-outline-primary">SMTPS</button>
                 <button type="button" class="btn btn-outline-primary">SMB</button>
+                <br>
             </div>
         <table class="table table-bordered">
             <thead>

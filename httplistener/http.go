@@ -34,6 +34,7 @@ func StartHTTP(db *sql.DB) {
 	e.PATCH("*", handleHTTP)
 	e.TRACE("*", handleHTTP)
 	e.CONNECT("*", handleHTTP)
+	e.HideBanner = true
 	e.Debug = true
 	e.Logger.Fatal(e.Start(":80"))
 }

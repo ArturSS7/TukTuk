@@ -2,7 +2,12 @@ package backend
 
 import (
 	"TukTuk/database"
+	"TukTuk/ftplistener"
+	"TukTuk/plaintcplistener"
 	"database/sql"
+	"fmt"
+	"github.com/labstack/echo/middleware"
+	"golang.org/x/crypto/acme/autocert"
 	"html/template"
 	"io"
 	"log"
@@ -28,6 +33,15 @@ type SingleRequest struct {
 }
 type Result struct {
 	Error string `json:"error"`
+}
+
+type TcpErr struct {
+	Error error `json:"error"`
+}
+
+type TcpResult struct {
+	Port    string `json:"port"`
+	Success bool   `json:"success"`
 }
 
 type Template struct {
@@ -58,6 +72,7 @@ func StartBack(db *sql.DB, Domain string) {
 		templates: template.Must(template.ParseGlob("frontend/templates/*")),
 	}
 	secret := []byte("#JVb0VYu*3j!8oQmOtZK")
+	e.AutoTLSManager.Cache = autocert.DirCache("/var/www/.cache")
 	e.Use(session.Middleware(sessions.NewCookieStore(secret)))
 	e.Renderer = t
 	e.Use(func(h echo.HandlerFunc) echo.HandlerFunc {
@@ -68,17 +83,26 @@ func StartBack(db *sql.DB, Domain string) {
 	})
 	credentials.username = "dsec"
 	credentials.password = "tuktuk"
+	e.Pre(middleware.HTTPSRedirect())
 	e.File("/", "frontend/index.html", loginRequired)
+	e.File("/tcp", "frontend/tcp.html", loginRequired)
 	e.File("/dns", "frontend/dns.html", loginRequired)
 	e.Static("/static", "frontend/static/")
 	e.GET("/api/:proto", getRequests, loginRequired)
 	e.GET("/api/request/:proto", getRequest, loginRequired)
 	e.GET("/api/dns/new", generateDomain, loginRequired)
+	e.POST("/api/tcp/new", startPlainTCP, loginRequired)
+	e.GET("/api/tcp/data", getTCPResults, loginRequired)
+	e.POST("/api/tcp/shutdown", stopTCPServer, loginRequired)
+	e.GET("/api/tcp/running", getRunningTCPServers, loginRequired)
+	e.POST("/api/ftp/start", startFTP, loginRequired)
+	e.POST("/api/ftp/shutdown", shutdownFTP, loginRequired)
 	e.GET("/login", loginPage)
 	e.POST("/login", handleLogin)
 	e.GET("/api/dns/available", getAvailableDomains, loginRequired)
+	e.HideBanner = true
 	e.Debug = true
-	e.Logger.Fatal(e.Start(":1234"))
+	e.Logger.Fatal(e.StartAutoTLS(":1234"))
 }
 
 //handler for getting requests from database
@@ -282,4 +306,150 @@ func getAvailableDomains(c echo.Context) error {
 		dd = append(dd, d)
 	}
 	return c.JSON(200, dd)
+}
+
+func startPlainTCP(c echo.Context) error {
+	m := echo.Map{}
+	if err := c.Bind(&m); err != nil {
+		log.Println(err)
+		return c.JSON(200, Result{Error: "true"})
+	}
+	if m["port"] == nil || m["port"] == "" {
+		return c.JSON(200, Result{Error: "true"})
+	}
+	port := fmt.Sprintf("%v", m["port"])
+	message := fmt.Sprintf("%v", m["message"])
+	cc := c.(*database.DBContext)
+	e := make(chan error)
+	go func(r chan error) {
+		err := plaintcplistener.StartTCP(cc.Db, message, port)
+		if err != nil {
+			r <- err
+		}
+	}(e)
+	time.Sleep(2 * time.Second)
+	select {
+	case err := <-e:
+		log.Println(err)
+		close(e)
+		er := &TcpErr{Error: err}
+		return c.JSON(200, er)
+	default:
+		res := &TcpResult{Port: port, Success: true}
+		close(e)
+		return c.JSON(200, res)
+	}
+}
+
+type TCPData struct {
+	Data     string `json:"data"`
+	SourceIP string `json:"source_ip"`
+	Time     string `json:"time"`
+	Port     string `json:"port"`
+	Id       int    `json:"id"`
+}
+
+func getTCPResults(c echo.Context) error {
+	port := c.QueryParam("port")
+	cc := c.(*database.DBContext)
+	var rows *sql.Rows
+	var err error
+	if port == "" {
+		rows, err = cc.Db.Query("select * from tcp order by id desc")
+	} else {
+		rows, err = cc.Db.Query("select * from tcp where port = $1 order by id desc", port)
+	}
+	if err != nil {
+		log.Println(err)
+		er := &Result{Error: "true"}
+		return c.JSON(200, er)
+	}
+	tr := make([]TCPData, 0)
+	for rows.Next() {
+		t := TCPData{}
+		err = rows.Scan(&t.Id, &t.Data, &t.SourceIP, &t.Time, &t.Port)
+		if err != nil {
+			log.Println(err)
+			er := &Result{Error: "true"}
+			return c.JSON(200, er)
+		}
+		tr = append(tr, t)
+	}
+	return c.JSON(200, tr)
+}
+
+func stopTCPServer(c echo.Context) error {
+	m := echo.Map{}
+	if err := c.Bind(&m); err != nil {
+		log.Println(err)
+		return c.JSON(200, Result{Error: "true"})
+	}
+	if m["port"] == nil || m["port"] == "" {
+		return c.JSON(200, Result{Error: "true"})
+	}
+	port := fmt.Sprintf("%v", m["port"])
+	if plaintcplistener.TCPServers[port] != nil {
+		plaintcplistener.TCPServers[port].Stop()
+		delete(plaintcplistener.TCPServers, port)
+		return c.JSON(200, TcpResult{
+			Port:    port,
+			Success: true,
+		})
+	} else {
+		return c.JSON(200, TcpResult{
+			Port:    port,
+			Success: false,
+		})
+	}
+}
+
+type TcpServer struct {
+	Port string `json:"port"`
+}
+
+func getRunningTCPServers(c echo.Context) error {
+	ts := make([]TcpServer, 0)
+	for v := range plaintcplistener.TCPServers {
+		t := TcpServer{Port: v}
+		ts = append(ts, t)
+	}
+	return c.JSON(200, ts)
+}
+
+func startFTP(c echo.Context) error {
+	cc := c.(*database.DBContext)
+	e := make(chan error)
+	go func(r chan error) {
+		err := ftplistener.StartFTP(cc.Db)
+		if err != nil {
+			r <- err
+		}
+	}(e)
+	time.Sleep(2 * time.Second)
+	select {
+	case err := <-e:
+		log.Println(err)
+		close(e)
+		er := &TcpErr{Error: err}
+		return c.JSON(200, er)
+	default:
+		res := &TcpResult{Port: "21", Success: true}
+		close(e)
+		return c.JSON(200, res)
+	}
+}
+
+func shutdownFTP(c echo.Context) error {
+	if ftplistener.FTPServer != nil {
+		ftplistener.FTPServer.Stop()
+		ftplistener.FTPServer = nil
+		return c.JSON(200, TcpResult{
+			Port:    "21",
+			Success: true,
+		})
+	}
+	return c.JSON(200, TcpResult{
+		Port:    "21",
+		Success: false,
+	})
 }
