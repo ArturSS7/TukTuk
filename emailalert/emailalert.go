@@ -17,7 +17,7 @@ import (
 var srv *gmail.Service
 var config *oauth2.Config
 var Enabled bool
-var to string = "dmitriy8096@gmail.com"
+var to string
 
 func EmailAlertStart(Enabled_ bool, to_ string) {
 	Enabled = Enabled_
@@ -133,7 +133,7 @@ func SendEmailAlert(subject, msg string) {
 		if err != nil {
 			log.Printf("Error: %v", err)
 		} else {
-			fmt.Println("Message sent!")
+			fmt.Println("The message send to " + to)
 		}
 	}
 }

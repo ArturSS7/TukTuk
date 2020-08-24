@@ -664,7 +664,7 @@ func (c *Conn) handleData(arg string) {
 	io.Copy(ioutil.Discard, r) // Make sure all the data has been consumed
 	c.WriteResponse(code, enhancedCode, msg)
 	Data_ += MailData
-	fmt.Println("")
+
 	logSMTP(database.DNSDB, c.State().RemoteAddr.String())
 }
 func ConvertData(r io.Reader) (string, error) {
