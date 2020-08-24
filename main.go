@@ -7,6 +7,7 @@ import (
 	"TukTuk/emailalert"
 	"TukTuk/httplistener"
 	"TukTuk/httpslistener"
+	"TukTuk/ldaplistener"
 	"TukTuk/smtplistener"
 	"TukTuk/startinitialization"
 	"TukTuk/telegrambot"
@@ -33,6 +34,9 @@ func main() {
 
 	//start smtp server
 	go smtplistener.StartSMTP(db, domain)
+
+	//start ldap server
+	go ldaplistener.Start(domain)
 
 	//start backend
 	backend.StartBack(db, domain)
