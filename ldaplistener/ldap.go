@@ -6,6 +6,7 @@ import (
 	"TukTuk/database"
 	"TukTuk/emailalert"
 	"TukTuk/telegrambot"
+	"fmt"
 	"log"
 	"os"
 	"time"
@@ -43,7 +44,8 @@ func handleBind(w ldap.ResponseWriter, m *ldap.Message) {
 	res := ldap.NewBindResponse(ldap.LDAPResultSuccess)
 	log.Println(m.Client.Addr())
 	log.Println(r.Name())
-
+	strname := fmt.Sprintf("%v", r.Name())
+	logLDAP(strname, m.Client.Addr().String())
 	w.Write(res)
 	return
 
