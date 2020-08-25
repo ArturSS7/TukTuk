@@ -69,7 +69,7 @@ func StartBack(db *sql.DB, Domain string) {
 	e.GET("/api/:proto", getRequests, loginRequired)
 	e.GET("/api/request/:proto", getRequest, loginRequired)
 	e.POST("/api/dns/new", generateDomain, loginRequired)
-	e.POST("/api/dns/delete", DeleteDomain, loginRequired)
+	e.POST("/api/dns/delete", deleteDomain, loginRequired)
 	e.POST("/api/tcp/new", startPlainTCP, loginRequired)
 	e.GET("/api/tcp/data", getTCPResults, loginRequired)
 	e.POST("/api/tcp/shutdown", stopTCPServer, loginRequired)
@@ -99,6 +99,8 @@ func getRequests(c echo.Context) error {
 		table = "dns"
 	case "smtp":
 		table = "smtp"
+	case "smb":
+		table = "smb"
 	default:
 		return c.String(404, "Not Found")
 	}
@@ -137,6 +139,8 @@ func getRequest(c echo.Context) error {
 		table = "dns"
 	case "smtp":
 		table = "smtp"
+	case "smb":
+		table = "smb"
 	default:
 		return c.String(404, "Not Found")
 	}
