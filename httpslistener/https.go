@@ -2,6 +2,7 @@ package httpslistener
 
 import (
 	"TukTuk/backend"
+	"TukTuk/config"
 	"TukTuk/database"
 	"TukTuk/emailalert"
 	"TukTuk/telegrambot"
@@ -38,13 +39,14 @@ func StartHTTPS(db *sql.DB) {
 	e.CONNECT("*", handleHTTPS)
 	e.HideBanner = true
 	e.Debug = true
-	e.Logger.Fatal(e.StartTLS(":443", "/etc/letsencrypt/live/tt.pwn.bar-0001/fullchain.pem", "/etc/letsencrypt/live/tt.pwn.bar-0001/privkey.pem"))
+	e.Logger.Fatal(e.StartTLS(":443", config.Settings.HttpsCertPath.CertFile, config.Settings.HttpsCertPath.KeyFile))
 }
 
 func handleHTTPS(c echo.Context) error {
 	cc := c.(*database.DBContext)
 	var result bool
-	re := regexp.MustCompile(`([a-z0-9\-]+\.tt\.pwn\.bar)`)
+	domain := config.Settings.DomainConfig.Name[:len(config.Settings.DomainConfig.Name)-1]
+	re := regexp.MustCompile(`([a-z0-9\-]+\.` + domain)
 	d := re.Find([]byte(c.Request().Host))
 	rows, err := cc.Db.Query("select exists (select id from dns_domains where domain = $1)", string(d)+".")
 	if err != nil {
