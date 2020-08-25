@@ -2,16 +2,12 @@ package main
 
 import (
 	"TukTuk/backend"
+	"TukTuk/config"
 	"TukTuk/database"
 	"TukTuk/dnslistener"
 	"TukTuk/emailalert"
 	"TukTuk/httplistener"
-	"fmt"
-
-	//"TukTuk/httpslistener"
-
-	//"TukTuk/httpslistener"
-	"TukTuk/config"
+	"TukTuk/httpslistener"
 	"TukTuk/smtplistener"
 	"TukTuk/telegrambot"
 )
@@ -19,12 +15,11 @@ import (
 func main() {
 	config.StartInit()
 	domain := config.Settings.DomainConfig.Name
-	fmt.Println(config.Settings.DomainConfig)
+
 	//start telegram bot
 	telegrambot.BotStart()
 	emailalert.EmailAlertStart(config.Settings.EmailAlert.Enabled, config.Settings.EmailAlert.To)
-	fmt.Println(config.Settings)
-	//fmt.Println(config.Settings.DomainConfig.Name[:len(config.Settings.DomainConfig.Name)-1])
+
 	//connect to database
 	db := database.Connect()
 
@@ -32,7 +27,7 @@ func main() {
 	go httplistener.StartHTTP(db)
 
 	//start https server
-	//go httpslistener.StartHTTPS(db)
+	go httpslistener.StartHTTPS(db)
 
 	//start dns server
 	go dnslistener.StartDNS(domain)
