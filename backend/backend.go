@@ -6,8 +6,6 @@ import (
 	"TukTuk/plaintcplistener"
 	"database/sql"
 	"fmt"
-	"github.com/labstack/echo/middleware"
-	"golang.org/x/crypto/acme/autocert"
 	"html/template"
 	"io"
 	"log"
@@ -15,6 +13,9 @@ import (
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/labstack/echo/middleware"
+	"golang.org/x/crypto/acme/autocert"
 
 	"github.com/gorilla/sessions"
 	"github.com/labstack/echo"
@@ -120,6 +121,8 @@ func getRequests(c echo.Context) error {
 		table = "dns"
 	case "smtp":
 		table = "smtp"
+	case "ldap":
+		table = "ldap"
 	default:
 		return c.String(404, "Not Found")
 	}
@@ -188,6 +191,8 @@ func getRequest(c echo.Context) error {
 		table = "dns"
 	case "smtp":
 		table = "smtp"
+	case "ldap":
+		table = "ldap"
 	default:
 		return c.String(404, "Not Found")
 	}
