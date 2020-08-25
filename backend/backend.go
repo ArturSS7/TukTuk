@@ -69,6 +69,7 @@ func StartBack(db *sql.DB, Domain string) {
 	e.GET("/api/:proto", getRequests, loginRequired)
 	e.GET("/api/request/:proto", getRequest, loginRequired)
 	e.POST("/api/dns/new", generateDomain, loginRequired)
+	e.POST("/api/dns/delete", DeleteDomain, loginRequired)
 	e.POST("/api/tcp/new", startPlainTCP, loginRequired)
 	e.GET("/api/tcp/data", getTCPResults, loginRequired)
 	e.POST("/api/tcp/shutdown", stopTCPServer, loginRequired)

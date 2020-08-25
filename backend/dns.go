@@ -91,7 +91,7 @@ func getAvailableDomains(c echo.Context) error {
 	return c.JSON(200, dd)
 }
 
-func DeleteDomain(c echo.Context) error {
+func deleteDomain(c echo.Context) error {
 	m := echo.Map{}
 	if err := c.Bind(&m); err != nil {
 		log.Println(err)
