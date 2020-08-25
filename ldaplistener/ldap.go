@@ -3,10 +3,12 @@
 package ldaplistener
 
 import (
+	"TukTuk/database"
+	"TukTuk/emailalert"
+	"TukTuk/telegrambot"
 	"log"
 	"os"
-	"os/signal"
-	"syscall"
+	"time"
 
 	ldap "github.com/vjeantet/ldapserver"
 )
@@ -27,10 +29,10 @@ func Start(domain string) {
 
 	// When CTRL+C, SIGINT and SIGTERM signal occurs
 	// Then stop server gracefully
-	ch := make(chan os.Signal)
-	signal.Notify(ch, syscall.SIGINT, syscall.SIGTERM)
-	<-ch
-	close(ch)
+	//ch := make(chan os.Signal)
+	//	signal.Notify(ch, syscall.SIGINT, syscall.SIGTERM)
+	//	<-ch
+	//(ch)
 
 	server.Stop()
 }
@@ -39,15 +41,24 @@ func Start(domain string) {
 func handleBind(w ldap.ResponseWriter, m *ldap.Message) {
 	r := m.GetBindRequest()
 	res := ldap.NewBindResponse(ldap.LDAPResultSuccess)
+	log.Println(m.Client.Addr())
+	log.Println(r.Name())
 
-	//	if string(r.Name()) == "myLogin" {
-	w.Write(r.Name())
 	w.Write(res)
 	return
-	//}
 
-	// log.Printf("Bind failed User=%s, Pass=%s", string(r.Name()), string(r.AuthenticationSimple()))
-	// res.SetResultCode(ldap.LDAPResultInvalidCredentials)
-	// res.SetDiagnosticMessage("invalid credentials")
-	// w.Write(res)
+}
+
+func logLDAP(dn, remouteAddr string) {
+	var lastInsertId int64 = 0
+	err := database.DNSDB.QueryRow("insert into ldap (data, source_ip, time) values ($1, $2, $3) RETURNING id", dn, remouteAddr, time.Now().String()).Scan(&lastInsertId)
+
+	if err != nil {
+		log.Println(err)
+	}
+
+	//Send Alert to telegram
+	telegrambot.BotSendAlert(dn, remouteAddr, time.Now().String(), "LDAP", lastInsertId)
+	//Send Alert to email
+	emailalert.SendEmailAlert("LDAP Alert", "Remoute Address: "+remouteAddr+"\n"+dn+"\n"+time.Now().String())
 }
