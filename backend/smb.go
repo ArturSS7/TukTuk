@@ -20,24 +20,29 @@ func startSMBServer(c echo.Context) error {
 	case err := <-e:
 		log.Println(err)
 		return c.JSON(200, struct {
-			Error error
-		}{Error: err})
+			Error string `json:"error"`
+		}{Error: fmt.Sprintf("%v", err)})
 	default:
 		return c.JSON(200, struct {
-			Success bool
+			Success bool `json:"success"`
 		}{Success: true})
 	}
 }
 
 func stopSMBServer(c echo.Context) error {
+	if smblistener.CMD.Process == nil {
+		return c.JSON(200, struct {
+			Success bool `json:"success"`
+		}{Success: false})
+	}
 	err := smblistener.CMD.Process.Kill()
 	if err != nil {
 		log.Println(err)
 		return c.JSON(200, struct {
-			error error
-		}{error: err})
+			Error string `json:"error"`
+		}{Error: fmt.Sprintf("%v", err)})
 	}
 	return c.JSON(200, struct {
-		success bool
-	}{success: true})
+		Success bool `json:"success"`
+	}{Success: true})
 }

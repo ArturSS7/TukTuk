@@ -85,6 +85,7 @@ func StartBack(db *sql.DB, Domain string) {
 	e.HideBanner = true
 	e.Debug = true
 	e.Logger.Fatal(e.StartAutoTLS(":1234"))
+	//e.Logger.Fatal(e.Start(":1234"))
 }
 
 //handler for getting requests from database
