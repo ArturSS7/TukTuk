@@ -41,7 +41,7 @@ var app = new Vue({
                 })
         },
         generateDNS: function () {
-            axios.get('/api/dns/new')
+            axios.post('/api/dns/new')
                 .then(response => {
                     this.dns_req = response.data
                     this.resp = true
