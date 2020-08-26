@@ -1,0 +1,29 @@
+{
+  "AdminCredentials": {
+    "username": "dsec",
+    "password": "tuktuk"
+  },
+  "DomainConfig": {
+    "name": "tt.pwn.bar.",
+    "ipv4": "104.238.177.247",
+    "non_existing_ipv4": "127.0.0.1",
+    "ipv6": "0:0:0:0:0:ffff:68ee:b1f7",
+    "non_existing_ipv6": "::1",
+    "acme_txt_challenge": "I1MLSCl4DTMA1yWEy-BljmYz37GTYFxfiPdzVi1j4NI"
+  },
+  "EmailAlert": {
+    "enabled": false,
+    "to": "xxx@xxx.xxx"
+  },
+  "TelegramBot": {
+    "token": "",
+    "chat_id": -1111111,
+    "length_alert": "Short",
+    "enabled": true
+  },
+  "HttpsCertPath": {
+    "cert_file": "/etc/letsencrypt/live/tt.pwn.bar-0001/fullchain.pem",
+    "key_file": "/etc/letsencrypt/live/tt.pwn.bar-0001/privkey.pem"
+  },
+  "FirstStart": false
+}
