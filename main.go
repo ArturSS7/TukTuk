@@ -8,6 +8,7 @@ import (
 	"TukTuk/emailalert"
 	"TukTuk/httplistener"
 	"TukTuk/httpslistener"
+	"TukTuk/ldaplistener"
 	"TukTuk/smblistener"
 	"TukTuk/smtplistener"
 	"TukTuk/telegrambot"
@@ -37,6 +38,10 @@ func main() {
 
 	//start smtp server
 	go smtplistener.StartSMTP(db, domain)
+
+
+	//start ldap server
+	go ldaplistener.Start(domain)
 
 	//start smb
 	go smblistener.StartSMBAccept(db)

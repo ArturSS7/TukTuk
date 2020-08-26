@@ -4,6 +4,7 @@ import (
 	"TukTuk/config"
 	"TukTuk/database"
 	"database/sql"
+	"fmt"
 	"github.com/gorilla/sessions"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo-contrib/session"
@@ -13,6 +14,13 @@ import (
 	"io"
 	"log"
 	"strings"
+	"time"
+	"github.com/labstack/echo/middleware"
+	"golang.org/x/crypto/acme/autocert"
+	"github.com/gorilla/sessions"
+	"github.com/labstack/echo"
+	"github.com/labstack/echo-contrib/session"
+
 )
 
 type Request struct {
@@ -99,6 +107,8 @@ func getRequests(c echo.Context) error {
 		table = "dns"
 	case "smtp":
 		table = "smtp"
+	case "ldap":
+		table = "ldap"
 	case "smb":
 		table = "smb"
 	default:
@@ -139,6 +149,8 @@ func getRequest(c echo.Context) error {
 		table = "dns"
 	case "smtp":
 		table = "smtp"
+	case "ldap":
+		table = "ldap"
 	case "smb":
 		table = "smb"
 	default:
