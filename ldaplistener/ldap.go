@@ -14,7 +14,7 @@ import (
 	ldap "github.com/vjeantet/ldapserver"
 )
 
-func Start(domain string) {
+func StartLDAP(domain string) {
 	//ldap logger
 	log.Println(os.Stdout, "[LDAP Server] ", log.LstdFlags)
 

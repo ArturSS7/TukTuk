@@ -39,9 +39,8 @@ func main() {
 	//start smtp server
 	go smtplistener.StartSMTP(db, domain)
 
-
 	//start ldap server
-	go ldaplistener.Start(domain)
+	go ldaplistener.StartLDAP(domain)
 
 	//start smb
 	go smblistener.StartSMBAccept(db)

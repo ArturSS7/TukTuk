@@ -4,23 +4,16 @@ import (
 	"TukTuk/config"
 	"TukTuk/database"
 	"database/sql"
-	"fmt"
-	"github.com/gorilla/sessions"
-	"github.com/labstack/echo"
-	"github.com/labstack/echo-contrib/session"
-	"github.com/labstack/echo/middleware"
-	"golang.org/x/crypto/acme/autocert"
 	"html/template"
 	"io"
 	"log"
 	"strings"
-	"time"
-	"github.com/labstack/echo/middleware"
-	"golang.org/x/crypto/acme/autocert"
+
 	"github.com/gorilla/sessions"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo-contrib/session"
-
+	"github.com/labstack/echo/middleware"
+	"golang.org/x/crypto/acme/autocert"
 )
 
 type Request struct {
