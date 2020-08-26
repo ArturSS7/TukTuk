@@ -48,7 +48,7 @@ func StartHTTP(db *sql.DB) {
 func handleHTTP(c echo.Context) error {
 	cc := c.(*database.DBContext)
 	var result bool
-	domain := config.Settings.DomainConfig.Name[:len(config.Settings.HttpsCertPath.CertFile)-1]
+	domain := config.Settings.DomainConfig.Name[:len(config.Settings.DomainConfig.Name)-1]
 	re := regexp.MustCompile(`([a-z0-9\-]+` + domain)
 	d := re.Find([]byte(c.Request().Host))
 	fmt.Println(d)
