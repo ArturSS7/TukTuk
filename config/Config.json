@@ -16,7 +16,7 @@
     "to": "xxx@gmail.com"
   },
   "TelegramBot": {
-    "token": "1351199153:AAEe1x20XTVb1Y4WWyp8DMzfOwcTca6rXE8",
+    "token": "",
     "chat_id": -415416834,
     "length_alert": "Short",
     "enabled": true
