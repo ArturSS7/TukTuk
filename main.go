@@ -7,13 +7,10 @@ import (
 	"TukTuk/dnslistener"
 	"TukTuk/emailalert"
 	"TukTuk/httplistener"
-	"TukTuk/httpslistener"
 	"TukTuk/ldaplistener"
 	"TukTuk/smblistener"
 	"TukTuk/smtplistener"
 	"TukTuk/telegrambot"
-	"log"
-	"os/exec"
 )
 
 func main() {
@@ -31,7 +28,7 @@ func main() {
 	go httplistener.StartHTTP(db)
 
 	//start https server
-	go httpslistener.StartHTTPS(db)
+	//go httpslistener.StartHTTPS(db)
 
 	//start dns server
 	go dnslistener.StartDNS(domain)
@@ -44,11 +41,7 @@ func main() {
 
 	//start smb
 	go smblistener.StartSMBAccept(db)
-	cmd := exec.Command("python3", "smblistener/impacket_smb/smb.py")
-	err := cmd.Run()
-	if err != nil {
-		log.Println(err)
-	}
+
 	//start backend
 	backend.StartBack(db, domain)
 

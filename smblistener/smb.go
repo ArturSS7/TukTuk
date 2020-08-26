@@ -6,8 +6,11 @@ import (
 	"fmt"
 	"github.com/labstack/echo"
 	"log"
+	"os/exec"
 	"time"
 )
+
+var CMD = exec.Command("python3", "smblistener/impacket_smb/smb.py")
 
 func StartSMBAccept(db *sql.DB) {
 	e := echo.New()
