@@ -13,11 +13,11 @@
   },
   "EmailAlert": {
     "enabled": false,
-    "to": "xxx@gmail.com"
+    "to": "xxx@xxx.xxx"
   },
   "TelegramBot": {
     "token": "",
-    "chat_id": -415416834,
+    "chat_id": -1111111,
     "length_alert": "Short",
     "enabled": true
   },
