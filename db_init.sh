@@ -5,4 +5,5 @@ psql -U tuk -c "create table http(id serial, data varchar, source_ip varchar, ti
 psql -U tuk -c "create table ftp(id serial, data varchar, source_ip varchar, time varchar);"
 psql -U tuk -c "create table https(id serial, data varchar, source_ip varchar, time varchar);"
 psql -U tuk -c "create table tcp(id serial, data varchar, source_ip varchar, time varchar, port int);"
-
+psql -U tuk -c "create table ldap(id serial, data varchar, source_ip varchar, time varchar);"
+psql -U tuk -c "create table smtp(id serial, data varchar, source_ip varchar, time varchar);"
