@@ -59,14 +59,7 @@ var app = new Vue({
             })
                 .then(response => {
                     console.log(response)
-                    if (response.data["success"] === true) {
-                        console.log("true")
-                        this.start_success = true
-                        this.isHidden = true
-                    } else {
-                        this.start_success = false
-                        this.isHidden = true
-                    }
+                    this.getDNS()
                 })
         },
         StopTCP: function (port) {
@@ -105,6 +98,11 @@ var app = new Vue({
                 .catch(error => {
                     console.log(error);
                 })
+        },
+        deleteDNS: function (domain) {
+            axios.post('/api/dns/delete', {
+                domain: domain
+            })
         }
     },
 })

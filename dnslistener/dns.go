@@ -134,7 +134,7 @@ func Handler(w dns.ResponseWriter, req *dns.Msg) {
 		re := regexp.MustCompile(`([a-z0-9\-]+\.)` + domain)
 		d := re.Find([]byte(strings.ToLower(question.Name)))
 		fmt.Println(d)
-		rows, err := database.DNSDB.Query("select exists(select domain from dns_domains where (domain = $1 and delete_time > $2) or (domain=$1 and delete_time is null))", d, time.Now().Unix())
+		rows, err := database.DNSDB.Query("select exists(select domain from dns_domains where (domain = $1 and delete_time > $2) or (domain=$1 and delete_time = 0))", d, time.Now().Unix())
 		if err != nil {
 			log.Println(err)
 		}

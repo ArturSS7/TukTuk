@@ -10,7 +10,9 @@ import (
 )
 
 type Domain struct {
-	Data string `json:"domain"`
+	Id         int    `json:"id"`
+	Data       string `json:"domain"`
+	DeleteTime int64  `json:"delete_time"`
 }
 
 var domain string
@@ -27,7 +29,7 @@ func generateDomain(c echo.Context) error {
 	if m["delete_time"] == "" {
 		d := &Domain{}
 		d.Data = RandStringBytes(8) + "." + domain
-		_, err := cc.Db.Exec("insert into dns_domains (domain) values ($1)", d.Data)
+		_, err := cc.Db.Exec("insert into dns_domains (domain, delete_time) values ($1, 0)", d.Data)
 		if err != nil {
 			log.Println(err)
 			er := &Result{Error: "true"}
@@ -65,13 +67,13 @@ func Find(slice []int64, val int64) bool {
 
 func getAvailableDomains(c echo.Context) error {
 	cc := c.(*database.DBContext)
-	_, err := cc.Db.Query("delete from dns_domains where delete_time < $1 and delete_time is not null", time.Now().Unix())
+	_, err := cc.Db.Query("delete from dns_domains where delete_time < $1 and delete_time != 0", time.Now().Unix())
 	if err != nil {
 		log.Println(err)
 		er := &Result{Error: "true"}
 		return c.JSON(200, er)
 	}
-	rows, err := cc.Db.Query("select domain from dns_domains order by id desc")
+	rows, err := cc.Db.Query("select id, domain, delete_time from dns_domains order by id desc")
 	if err != nil {
 		log.Println(err)
 		er := &Result{Error: "true"}
@@ -80,7 +82,7 @@ func getAvailableDomains(c echo.Context) error {
 	dd := make([]Domain, 0)
 	for rows.Next() {
 		d := Domain{}
-		err = rows.Scan(&d.Data)
+		err = rows.Scan(&d.Id, &d.Data, &d.DeleteTime)
 		if err != nil {
 			log.Println(err)
 			er := &Result{Error: "true"}

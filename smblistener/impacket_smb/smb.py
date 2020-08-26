@@ -1,7 +1,7 @@
 import logging
 
 from impacket.examples import logger
-import smbserver
+from impacket import smbserver
 
 logger.init(True)
 logging.getLogger().setLevel(logging.DEBUG)

@@ -7,7 +7,6 @@ import (
 	"TukTuk/dnslistener"
 	"TukTuk/emailalert"
 	"TukTuk/httplistener"
-	"TukTuk/httpslistener"
 	"TukTuk/ldaplistener"
 	"TukTuk/smblistener"
 	"TukTuk/smtplistener"
@@ -29,7 +28,7 @@ func main() {
 	go httplistener.StartHTTP(db)
 
 	//start https server
-	go httpslistener.StartHTTPS(db)
+	//go httpslistener.StartHTTPS(db)
 
 	//start dns server
 	go dnslistener.StartDNS(domain)

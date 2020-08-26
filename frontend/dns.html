@@ -11,8 +11,28 @@
 <body>
 <h1 class="text-center">DNS Management</h1>
 <div id="app" class="container mt-4">
+    <div>
+        <b-dropdown id="dropdown-1" text="Dropdown Button" class="m-md-2">
+            <b-dropdown-item>First Action</b-dropdown-item>
+            <b-dropdown-item>Second Action</b-dropdown-item>
+            <b-dropdown-item>Third Action</b-dropdown-item>
+            <b-dropdown-divider></b-dropdown-divider>
+            <b-dropdown-item active>Active action</b-dropdown-item>
+            <b-dropdown-item disabled>Disabled action</b-dropdown-item>
+        </b-dropdown>
+    </div>
     <div class="dns-btn">
-        <button @click="generateDNS()" type="button" class="btn btn-outline-primary">Generate new domain</button>
+        <div class="dropdown">
+            <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Generate
+            </button>
+            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                <a class="dropdown-item" @click="GenerateDns('3600')">1 hour</a>
+                <a class="dropdown-item" @click="GenerateDns('86400')">1 day</a>
+                <a class="dropdown-item" @click="GenerateDns('604800')">1 week</a>
+                <a class="dropdown-item" @click="GenerateDns('2629743')">1 month</a>
+            </div>
+        </div>
         <p v-if="resp">New domain: {{dns_req.domain}}</p>
     </div>
     <div class="dns-get-btn">
@@ -21,14 +41,19 @@
     <table class="table table-bordered">
         <thead>
         <tr>
-            <th scope="col">#</th>
+            <th scope="col">Id</th>
             <th scope="col">Domain</th>
+            <th scope="col">Delete Time</th>
         </tr>
         </thead>
         <tbody>
-        <tr v-for="request, index in requests">
-            <th scope="row">{{index+1}}</th>
-            <td style="white-space:pre">{{request.domain}}</td>
+        <tr v-for="request in requests">
+            <th scope="row">{{request.id}}</th>
+            <td style="white-space:pre">{{request.domain}}
+                <br>
+                <button @click="deleteDNS(request.domain)" type="button" class="btn btn-danger">Delete</button>
+            </td>
+            <td scope="row">{{request.delete_time}}</td>
         </tr>
         </tbody>
     </table>
