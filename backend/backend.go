@@ -17,6 +17,7 @@ import (
 )
 
 type Request struct {
+	Id       int    `json:"id"`
 	Data     string `json:"data"`
 	SourceIp string `json:"source_ip"`
 	Time     string `json:"time"`
@@ -112,7 +113,7 @@ func getRequests(c echo.Context) error {
 	}
 	limit := c.FormValue("limit")
 	cc := c.(*database.DBContext)
-	rows, err := cc.Db.Query("select data, source_ip, time from "+table+" order by id desc limit $1", limit)
+	rows, err := cc.Db.Query("select id, data, source_ip, time from "+table+" order by id desc limit $1", limit)
 	if err != nil {
 		log.Println(err)
 		er := &Result{Error: "true"}
@@ -121,7 +122,7 @@ func getRequests(c echo.Context) error {
 	rr := make([]Request, 0)
 	for rows.Next() {
 		r := Request{}
-		err := rows.Scan(&r.Data, &r.SourceIp, &r.Time)
+		err := rows.Scan(&r.Id, &r.Data, &r.SourceIp, &r.Time)
 		if err != nil {
 			log.Println(err)
 			er := &Result{Error: "true"}

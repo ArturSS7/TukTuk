@@ -55,8 +55,8 @@
             </tr>
             </thead>
             <tbody>
-            <tr v-for="request, index in requests">
-                <th scope="row">{{index+1}}</th>
+            <tr v-for="request in requests">
+                <th scope="row">{{request.id}}</th>
                 <td style="white-space:pre" style="width: 500px">{{request.data}}</td>
                 <td>{{request.source_ip}}</td>
                 <td>{{request.time}}</td>
