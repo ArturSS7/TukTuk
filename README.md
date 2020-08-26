@@ -25,7 +25,7 @@ Also if you wondering why project naming is so strange - *TukTuk* stands for *Kn
  - Plain TCP
  
 ## Alerting 
-TukTuk is designed not only to log requests, but to alert in case of it. Current alert options is:
+TukTuk is designed not only to log requests, but to alert in case of it. Current alert options are:
  - Telegram
  - GMail
  
