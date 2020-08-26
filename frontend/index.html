@@ -18,6 +18,23 @@
         <a href="/tcp">TCP management</a>
     </div>
         <div id="app" class="container mt-4">
+            <div class="text-center">
+                <button @click="TurnFTPon()" type="button" class="btn btn-outline-primary">FTP ON</button>
+                <button @click="TurnFTPoff()" type="button" class="btn btn-outline-primary">FTP OFF</button>
+                <p v-if="startFTP_success === true">FTP started</p>
+                <p v-if="startFTP_success === false">Failed to start FTP</p>
+                <p v-if="stopFTP_success === true">FTP stopped</p>
+                <p v-if="stopFTP_success === false">Failed to stop FTP</p>
+            </div>
+            <div class="text-center">
+                <button @click="TurnSMBon()" type="button" class="btn btn-outline-primary">SMB ON</button>
+                <button @click="TurnSMBoff()" type="button" class="btn btn-outline-primary">SMB OFF</button>
+                <p v-if="startSMB_success === true">SMB started</p>
+                <p v-if="startSMB_success === false">Failed to start SMB</p>
+                <p v-if="stopSMB_success === true">SMB stopped</p>
+                <p v-if="stopSMB_success === false">Failed to stop SMB</p>
+            </div>
+            <br>
             <div class="buttons">
                 <button @click="getData('http')" type="button" class="btn btn-outline-primary">HTTP</button>
                 <button @click="getData('https')" type="button" class="btn btn-outline-primary">HTTPS</button>
@@ -40,7 +57,7 @@
             <tbody>
             <tr v-for="request, index in requests">
                 <th scope="row">{{index+1}}</th>
-                <td style="white-space:pre">{{request.data}}</td>
+                <td style="white-space:pre" style="width: 500px">{{request.data}}</td>
                 <td>{{request.source_ip}}</td>
                 <td>{{request.time}}</td>
             </tr>

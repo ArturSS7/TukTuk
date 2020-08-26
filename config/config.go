@@ -1,4 +1,4 @@
-//Domen name
+//Domain config
 //Telegram config
 //GmailAPI config
 package config
@@ -13,14 +13,14 @@ import (
 
 var Settings InitStruct
 
-//StartInit domain and alert from Config.json
+//StartInit domain and alert from Config.json.example
 func StartInit() {
 	parseConfig()
 }
 
 func readConfig() []byte {
 	var fileData []byte
-	file, err := os.Open("config/Config.json")
+	file, err := os.Open("config/Config.json.example")
 	if err != nil {
 		log.Fatalln(err)
 	}

@@ -16,6 +16,14 @@ var app = new Vue({
         tcp_port: '',
         RunningIsHidden: true,
         running_tcp: [],
+        startSMB_success: '',
+        startFTP_success: '',
+        StartFTPIsHidden: true,
+        StartSMBIsHidden: true,
+        StopSMBIsHidden: true,
+        StopFTPIsHidden: true,
+        stopSMB_success: '',
+        stopFTP_success: '',
     },
     methods : {
         getData: function (proto) {
@@ -61,7 +69,6 @@ var app = new Vue({
             })
                 .then(response => {
                     console.log(response)
-                    this.getDNS()
                 })
         },
         StopTCP: function (port) {
@@ -105,6 +112,81 @@ var app = new Vue({
             axios.post('/api/dns/delete', {
                 domain: domain
             })
+                .then(response => {
+                    console.log(response);
+                    this.getDNS()
+                })
+                .catch(error => {
+                    console.log(error);
+                })
+        },
+        TurnFTPon: function() {
+            axios.post('/api/ftp/start')
+                .then(response => {
+                    console.log(response);
+                    if (response.data["success"] === true) {
+                        console.log("true")
+                        this.startFTP_success = true
+                        this.StartFTPIsHidden = true
+                    } else {
+                        this.startFTP_success = false
+                        this.StartFTPIsHidden = true
+                    }
+                })
+                .catch(error => {
+                    console.log(error);
+                })
+        },
+        TurnFTPoff: function() {
+            axios.post('/api/ftp/shutdown')
+                .then(response => {
+                    console.log(response);
+                    if (response.data["success"] === true) {
+                        console.log("true")
+                        this.stopFTP_success = true
+                        this.StopFTPIsHidden = true
+                    } else {
+                        this.stopFTP_success = false
+                        this.StopFTPIsHidden = true
+                    }
+                })
+                .catch(error => {
+                    console.log(error);
+                })
+        },
+        TurnSMBon: function() {
+            axios.post('/api/smb/start')
+                .then(response => {
+                    console.log(response);
+                    if (response.data["success"] === true) {
+                        console.log("true")
+                        this.startSMB_success = true
+                        this.StartSMBIsHidden = true
+                    } else {
+                        this.startSMB_success = false
+                        this.StartSMBIsHidden = true
+                    }
+                })
+                .catch(error => {
+                    console.log(error);
+                })
+        },
+        TurnSMBoff: function() {
+            axios.post('/api/smb/shutdown')
+                .then(response => {
+                    console.log(response);
+                    if (response.data["success"] === true) {
+                        console.log("true")
+                        this.stopSMB_success = true
+                        this.StopSMBIsHidden = true
+                    } else {
+                        this.stopSMB_success = false
+                        this.StopSMBIsHidden = true
+                    }
+                })
+                .catch(error => {
+                    console.log(error);
+                })
         }
     },
 })
