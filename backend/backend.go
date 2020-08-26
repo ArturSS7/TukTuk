@@ -77,6 +77,8 @@ func StartBack(db *sql.DB, Domain string) {
 	e.GET("/api/tcp/running", getRunningTCPServers, loginRequired)
 	e.POST("/api/ftp/start", startFTP, loginRequired)
 	e.POST("/api/ftp/shutdown", shutdownFTP, loginRequired)
+	e.POST("/api/ldap/start", startLDAP, loginRequired)
+	e.POST("/api/ldap/shutdown", shutdownLDAP, loginRequired)
 	e.GET("/login", loginPage)
 	e.POST("/login", handleLogin)
 	e.GET("/api/dns/available", getAvailableDomains, loginRequired)

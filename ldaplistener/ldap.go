@@ -6,6 +6,7 @@ import (
 	"TukTuk/database"
 	"TukTuk/emailalert"
 	"TukTuk/telegrambot"
+	"database/sql"
 	"fmt"
 	"log"
 	"os"
@@ -14,7 +15,9 @@ import (
 	ldap "github.com/vjeantet/ldapserver"
 )
 
-func StartLDAP(domain string) {
+var LDAPserver *ldap.Server
+
+func StartLDAP(db *sql.DB) error {
 	//ldap logger
 	log.Println(os.Stdout, "[LDAP Server] ", log.LstdFlags)
 
@@ -24,7 +27,7 @@ func StartLDAP(domain string) {
 	routes := ldap.NewRouteMux()
 	routes.Bind(handleBind)
 	server.Handle(routes)
-
+	LDAPserver = server
 	// listen on 10389
 	server.ListenAndServe("pwn.bar:10389")
 
@@ -36,6 +39,7 @@ func StartLDAP(domain string) {
 	//(ch)
 
 	server.Stop()
+	return nil
 }
 
 // handleBind return Success if login == mysql
