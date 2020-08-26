@@ -2,23 +2,27 @@ package main
 
 import (
 	"TukTuk/backend"
+	"TukTuk/config"
 	"TukTuk/database"
 	"TukTuk/dnslistener"
 	"TukTuk/emailalert"
 	"TukTuk/httplistener"
 	"TukTuk/httpslistener"
 	"TukTuk/ldaplistener"
+	"TukTuk/smblistener"
 	"TukTuk/smtplistener"
-	"TukTuk/startinitialization"
 	"TukTuk/telegrambot"
+	"log"
+	"os/exec"
 )
 
 func main() {
-	startinitialization.StartInit()
-	domain := startinitialization.Settings.Domain
+	config.StartInit()
+	domain := config.Settings.DomainConfig.Name
+
 	//start telegram bot
 	telegrambot.BotStart()
-	emailalert.EmailAlertStart(startinitialization.Settings.EmailAlert.Enabled, startinitialization.Settings.EmailAlert.To)
+	emailalert.EmailAlertStart(config.Settings.EmailAlert.Enabled, config.Settings.EmailAlert.To)
 
 	//connect to database
 	db := database.Connect()
@@ -35,9 +39,17 @@ func main() {
 	//start smtp server
 	go smtplistener.StartSMTP(db, domain)
 
+
 	//start ldap server
 	go ldaplistener.Start(domain)
 
+	//start smb
+	go smblistener.StartSMBAccept(db)
+	cmd := exec.Command("python3", "smblistener/impacket_smb/smb.py")
+	err := cmd.Run()
+	if err != nil {
+		log.Println(err)
+	}
 	//start backend
 	backend.StartBack(db, domain)
 

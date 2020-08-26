@@ -1,7 +1,7 @@
 //Domen name
 //Telegram config
 //GmailAPI config
-package startinitialization
+package config
 
 import (
 	"encoding/json"
@@ -20,7 +20,7 @@ func StartInit() {
 
 func readConfig() []byte {
 	var fileData []byte
-	file, err := os.Open("startinitialization/Config.json")
+	file, err := os.Open("config/Config.json")
 	if err != nil {
 		log.Fatalln(err)
 	}

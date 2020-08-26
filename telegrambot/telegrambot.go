@@ -1,7 +1,7 @@
 package telegrambot
 
 import (
-	"TukTuk/startinitialization"
+	"TukTuk/config"
 	"database/sql"
 	"fmt"
 	"log"
@@ -21,10 +21,10 @@ type content struct {
 
 //BotStart Start Telegram Bot
 func BotStart() {
-	SettingBot = startinitialization.Settings.Telegrambot
+	SettingBot = config.Settings.TelegramBot
 }
 
-var SettingBot startinitialization.TelegramSetting
+var SettingBot config.TelegramSetting
 
 func BotSendAlert(data, source_ip, time, ProtocolName string, id int64) {
 	if SettingBot.Enabled {
@@ -78,7 +78,7 @@ func readDB(tableName string, db *sql.DB, id int64) string {
 
 func messageFormation(ContentFormation content, ProtocolName string, id int64) string {
 	var request string
-	if SettingBot.LenghtAlert == "Long" {
+	if SettingBot.LengthAlert == "Long" {
 		request = "`" + ContentFormation.data + "\n" + ContentFormation.source_ip + "\n" + ContentFormation.time + "`\n\nLink: https://pwn.bar:1234/api/request/" + strings.ToLower(ProtocolName) + "?id=" + strconv.Itoa(int(id))
 	} else {
 		request = "Received " + ProtocolName + " request from IP: `" + ContentFormation.source_ip + "`\n\nLink: https://pwn.bar:1234/api/request/" + strings.ToLower(ProtocolName) + "?id=" + strconv.Itoa(int(id))

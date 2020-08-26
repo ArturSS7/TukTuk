@@ -2,6 +2,9 @@ package httplistener
 
 import (
 	"TukTuk/backend"
+	"TukTuk/config"
+
+	//"TukTuk/config"
 	"TukTuk/database"
 	"TukTuk/emailalert"
 	"TukTuk/telegrambot"
@@ -45,7 +48,8 @@ func StartHTTP(db *sql.DB) {
 func handleHTTP(c echo.Context) error {
 	cc := c.(*database.DBContext)
 	var result bool
-	re := regexp.MustCompile(`([a-z0-9\-]+\.tt\.pwn\.bar)`)
+	domain := config.Settings.DomainConfig.Name[:len(config.Settings.HttpsCertPath.CertFile)-1]
+	re := regexp.MustCompile(`([a-z0-9\-]+` + domain)
 	d := re.Find([]byte(c.Request().Host))
 	fmt.Println(d)
 	rows, err := cc.Db.Query("select exists (select id from dns_domains where domain = $1)", string(d)+".")

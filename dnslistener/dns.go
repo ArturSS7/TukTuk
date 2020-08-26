@@ -1,9 +1,9 @@
 package dnslistener
 
 import (
+	"TukTuk/config"
 	"TukTuk/database"
 	"TukTuk/emailalert"
-	"TukTuk/startinitialization"
 	"TukTuk/telegrambot"
 	"errors"
 	"fmt"
@@ -35,11 +35,11 @@ var records map[string]string
 func StartDNS(Domain string) {
 	records = make(map[string]string)
 	domain = Domain
-	records["*."+domain] = "127.0.0.1"
-	records["*."+domain+"6"] = "::1"
-	records["existing."+domain] = "104.238.177.247"
-	records["existing."+domain+"6"] = "0:0:0:0:0:ffff:68ee:b1f7"
-	records["acme."+domain] = "I1MLSCl4DTMA1yWEy-BljmYz37GTYFxfiPdzVi1j4NI"
+	records["*."+domain] = config.Settings.DomainConfig.NonExistingIPV4
+	records["*."+domain+"6"] = config.Settings.DomainConfig.NonExistingIPV6
+	records["existing."+domain] = config.Settings.DomainConfig.IPV4
+	records["existing."+domain+"6"] = config.Settings.DomainConfig.IPV6
+	records["acme."+domain] = config.Settings.DomainConfig.AcmeTxtChallenge
 	startServer()
 }
 
@@ -107,13 +107,7 @@ func Handler(w dns.ResponseWriter, req *dns.Msg) {
 	if err != nil {
 		log.Println(err)
 	}
-
-	r := new(dns.MX)
-	r.Mx = startinitialization.Settings.Domain
-	r.Hdr = dns.RR_Header{Name: "*" + r.Mx, Rrtype: dns.TypeMX, Class: dns.ClassINET, Ttl: 3600}
-	r.Preference = 10
 	m := new(dns.Msg)
-	m.SetQuestion(r.String(), dns.TypeMX)
 	m.SetReply(req)
 	m.Compress = false
 	switch req.Opcode {
@@ -140,7 +134,7 @@ func Handler(w dns.ResponseWriter, req *dns.Msg) {
 		re := regexp.MustCompile(`([a-z0-9\-]+\.)` + domain)
 		d := re.Find([]byte(strings.ToLower(question.Name)))
 		fmt.Println(d)
-		rows, err := database.DNSDB.Query("select exists(select domain from dns_domains where domain = $1)", d)
+		rows, err := database.DNSDB.Query("select exists(select domain from dns_domains where (domain = $1 and delete_time > $2) or (domain=$1 and delete_time is null))", d, time.Now().Unix())
 		if err != nil {
 			log.Println(err)
 		}
