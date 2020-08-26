@@ -1,6 +1,8 @@
 package plaintcplistener
 
 import (
+	"TukTuk/emailalert"
+	"TukTuk/telegrambot"
 	"bufio"
 	"bytes"
 	"database/sql"
@@ -114,7 +116,9 @@ func (c *Conn) log() {
 	}
 
 	//Send Alert to telegram
-	//telegrambot.BotSendAlert(c.data.String(), c.conn.RemoteAddr().String(), time.Now().String(), "FTP", lastInsertId)
+	telegrambot.BotSendAlert(c.data.String(), c.conn.RemoteAddr().String(), time.Now().String(), "TCP", lastInsertId)
+	//Send Alert to email
+	emailalert.SendEmailAlert("TCP Alert", c.conn.RemoteAddr().String()+"\n\n"+c.data.String())
 }
 
 func (c *Conn) respond(s string) {

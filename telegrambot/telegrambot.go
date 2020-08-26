@@ -30,7 +30,8 @@ func BotSendAlert(data, source_ip, time, ProtocolName string, id int64) {
 	if SettingBot.Enabled {
 		bot, err := tgbotapi.NewBotAPI(SettingBot.Token)
 		if err != nil {
-			log.Panic(err)
+			log.Println(err)
+			return
 		}
 		_cont := content{data, source_ip, time}
 		bot.Debug = true
