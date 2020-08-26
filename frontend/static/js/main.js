@@ -40,8 +40,10 @@ var app = new Vue({
                     console.log(error);
                 })
         },
-        generateDNS: function () {
-            axios.post('/api/dns/new')
+        generateDNS: function (time) {
+            axios.post('/api/dns/new', {
+                delete_time: time
+            })
                 .then(response => {
                     this.dns_req = response.data
                     this.resp = true

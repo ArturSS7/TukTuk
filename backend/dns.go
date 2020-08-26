@@ -52,6 +52,7 @@ func generateDomain(c echo.Context) error {
 			er := &Result{Error: "true"}
 			return c.JSON(200, er)
 		}
+		return c.JSON(200, d)
 	}
 	return c.JSON(200, Result{Error: "true"})
 }
@@ -63,6 +64,12 @@ func Find(slice []int64, val int64) bool {
 		}
 	}
 	return false
+}
+
+type DomainT struct {
+	Id         int    `json:"id"`
+	Data       string `json:"domain"`
+	DeleteTime string `json:"delete_time"`
 }
 
 func getAvailableDomains(c echo.Context) error {
@@ -90,7 +97,19 @@ func getAvailableDomains(c echo.Context) error {
 		}
 		dd = append(dd, d)
 	}
-	return c.JSON(200, dd)
+	dt := make([]DomainT, 0)
+	for _, v := range dd {
+		d := DomainT{}
+		if v.DeleteTime == 0 {
+			d.DeleteTime = "Never"
+		} else {
+			d.DeleteTime = time.Unix(v.DeleteTime, 0).String()
+		}
+		d.Id = v.Id
+		d.Data = v.Data
+		dt = append(dt, d)
+	}
+	return c.JSON(200, dt)
 }
 
 func deleteDomain(c echo.Context) error {
