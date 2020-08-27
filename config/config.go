@@ -20,7 +20,7 @@ func StartInit() {
 
 func readConfig() []byte {
 	var fileData []byte
-	file, err := os.Open("config/Config.json.example")
+	file, err := os.Open("config/Config.json")
 	if err != nil {
 		log.Fatalln(err)
 	}
