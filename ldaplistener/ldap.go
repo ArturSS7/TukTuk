@@ -44,7 +44,8 @@ func handleBind(w ldap.ResponseWriter, m *ldap.Message) {
 	res := ldap.NewBindResponse(ldap.LDAPResultSuccess)
 	log.Println(m.Client.Addr())
 	log.Println(r.Name())
-	strname := fmt.Sprintf("%v", r.Name())
+	log.Println(r.Authentication())
+	strname := fmt.Sprintf("%v", r.Name()) + "\nPassword: " + fmt.Sprintf("%v", r.Authentication())
 	logLDAP(strname, m.Client.Addr().String())
 	w.Write(res)
 	return
