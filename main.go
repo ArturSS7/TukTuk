@@ -12,9 +12,11 @@ import (
 	"TukTuk/smblistener"
 	"TukTuk/smtplistener"
 	"TukTuk/telegrambot"
+	"os"
 )
 
 func main() {
+	config.ConfigPath = os.Args[1]
 	config.StartInit()
 	domain := config.Settings.DomainConfig.Name
 

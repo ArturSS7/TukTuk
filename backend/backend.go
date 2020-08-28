@@ -4,7 +4,6 @@ import (
 	"TukTuk/config"
 	"TukTuk/database"
 	"database/sql"
-	"github.com/labstack/echo/middleware"
 	"golang.org/x/crypto/acme/autocert"
 	"html/template"
 	"io"
@@ -51,7 +50,7 @@ func StartBack(db *sql.DB, Domain string) {
 	t := &Template{
 		templates: template.Must(template.ParseGlob("frontend/templates/*")),
 	}
-	secret := []byte("#JVb0VYu*3j!8oQmOtZK")
+	secret := []byte(RandStringBytes(20))
 	e.AutoTLSManager.Cache = autocert.DirCache("/var/www/.cache")
 	e.Use(session.Middleware(sessions.NewCookieStore(secret)))
 	e.Renderer = t
@@ -63,7 +62,7 @@ func StartBack(db *sql.DB, Domain string) {
 	})
 	credentials.username = config.Settings.AdminCredentials.Username
 	credentials.password = config.Settings.AdminCredentials.Password
-	e.Pre(middleware.HTTPSRedirect())
+	//e.Pre(middleware.HTTPSRedirect())
 	e.File("/", "frontend/index.html", loginRequired)
 	e.File("/tcp", "frontend/tcp.html", loginRequired)
 	e.File("/dns", "frontend/dns.html", loginRequired)
