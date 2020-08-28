@@ -12,7 +12,7 @@ TukTuk is an open source tool that designed to make pentester's life easier by c
 Also if you wondering why project naming is so strange - *TukTuk* stands for *Knock-Knock* in Russian.
 ## How to install
 
-####Requirements
+#### Requirements
 
 - Golang >= 1.14.2
 - PostgreSQL >= 12.1
@@ -21,7 +21,7 @@ Also if you wondering why project naming is so strange - *TukTuk* stands for *Kn
 You can do this with pip
 ```pip3 install git+https://github.com/ArturSS7/impacket.git@master```
 
-####Setting up DNS
+#### Setting up DNS
 
 In order to set up DNS do the following:
 - Make A record ns.example.com which points your ip
@@ -32,7 +32,7 @@ In order to set up DNS do the following:
 Example shows how to setup TukTuk for *.h.example.com if your VPS' IP is 1.3.3.7. Main DNS is Cloudflare in our case, but you can use what you want
 ![DNS setup](https://user-images.githubusercontent.com/52138851/91592820-cbe66a00-e967-11ea-8a1f-e16379867ac6.png)
 
-####Building project and setting up database
+#### Building project and setting up database
 
 Just run two scripts:
 - install.sh
@@ -41,18 +41,18 @@ Just run two scripts:
 After doing the project will be moved to $GOPATH/src/TukTuk
 You can run it with ./TukTuk
 
-####Configuring
+#### Configuring
 
 The example configuration file is located in ```config/Config.json.example```.
 There you can configure your domain settings, credentials and alerts
 Move the file to ```Config.json``` if you are going to run the project.
 Please change default credentials.
 
-####Configuring alerts
+#### Configuring alerts
 
 ```TODO```
 
-####Getting HTTPS certificate
+#### Getting HTTPS certificate
 
 You will have to get a wildcard certificate for your domain
 You can do this with cert-bot
