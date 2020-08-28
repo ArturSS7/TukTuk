@@ -1,3 +1,5 @@
+#!/bin/bash
+echo "[*] Setting up database"
 echo "If you are having problems with running this script do \"su postgres\" and try again"
 
 psql -c "create database tuktuk;"
