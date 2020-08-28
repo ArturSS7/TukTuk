@@ -58,7 +58,7 @@ You will have to get a wildcard certificate for your domain.
 You can do this with cert-bot.
 A good article which will help you is [here](https://medium.com/@saurabh6790/generate-wildcard-ssl-certificate-using-lets-encrypt-certbot-273e432794d7).
 First start the app and then start the bot.
-During setting up certificates cert-bot will ask you to add TXT challenge to you domain. Add the TXT challenge in the Config.json file and continue.
+During setting up certificates cert-bot will ask you to add TXT challenge to you domain. Add the TXT challenge in the ```Config.json``` file and continue.
 After getting certificate put its path to the config file.
 
 ## Supported protocols:
