@@ -18,11 +18,9 @@ func StartInit() {
 	parseConfig()
 }
 
-var ConfigPath string
-
 func readConfig() []byte {
 	var fileData []byte
-	file, err := os.Open(ConfigPath)
+	file, err := os.Open("config/Config.json.example")
 	if err != nil {
 		log.Fatalln(err)
 	}
