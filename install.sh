@@ -1,6 +1,6 @@
 #!/bin/bash
 echo "[*] Installing dependencies"
-#requied do modules
+#requied go modules
 go get github.com/gorilla/sessions
 go get github.com/labstack/echo
 go get github.com/labstack/echo-contrib/session
