@@ -79,11 +79,11 @@ func readDB(tableName string, db *sql.DB, id int64) string {
 
 func messageFormation(ContentFormation content, ProtocolName string, id int64) string {
 	var request string
-	ContentFormation.source_ip = parsePort(ContentFormation.source_ip)
+	port := parsePort(ContentFormation.source_ip)
 	if SettingBot.LengthAlert == "Long" {
-		request = "`" + ContentFormation.data + "\n" + ContentFormation.source_ip + "\n" + ContentFormation.time + "`\n\nLink: https://" + parseDomainforlink(config.Settings.DomainConfig.Name) + ":1234/api/request/" + strings.ToLower(ProtocolName) + "?id=" + strconv.Itoa(int(id))
+		request = "`" + ContentFormation.data + "\n" + port + "\n" + ContentFormation.time + "`\n\nLink: https://" + parseDomainforlink(config.Settings.DomainConfig.Name) + ":1234/api/request/" + strings.ToLower(ProtocolName) + "?id=" + strconv.Itoa(int(id))
 	} else {
-		request = "Received " + ProtocolName + " request from IP: `" + ContentFormation.source_ip + "`\n\nLink: https://" + parseDomainforlink(config.Settings.DomainConfig.Name) + ":1234/api/request/" + strings.ToLower(ProtocolName) + "?id=" + strconv.Itoa(int(id))
+		request = "Received " + ProtocolName + " request from IP: `" + port + "`\n\nLink: https://" + parseDomainforlink(config.Settings.DomainConfig.Name) + ":1234/api/request/" + strings.ToLower(ProtocolName) + "?id=" + strconv.Itoa(int(id))
 	}
 	if ProtocolName == "DNS" {
 		request += "\nFrom Domain: `" + ParseDomainDNS(ContentFormation.data) + "`"
