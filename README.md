@@ -5,7 +5,8 @@
 
 # TukTuk
 
-This project was initially started as a part of [Digital Security](https://github.com/DSecurity)'s internship ["Summer of Hack 2020"](https://dsec.ru/about/traineeship/).
+This project was initially started as a part of [Digital Security](https://github.com/DSecurity)'s internship ["Summer of Hack 2020"](https://dsec.ru/about/summerofhack/
+).
 
 TukTuk is an open source tool that designed to make pentester's life easier by catching and logging different types of requests. TukTuk is written in Go, but has a little part of python code. 
 
