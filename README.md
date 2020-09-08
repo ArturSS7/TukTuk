@@ -51,7 +51,18 @@ Please change default credentials.
 
 #### Configuring alerts
 
-```TODO```
+##### Telegram configuring
+
+Create a bot and get a token is [here](https://core.telegram.org/bots#3-how-do-i-create-a-bot).
+You can get `Chatid` using this bot ```@m4n_idbot```.
+Set Telegram token in the ```TelegramBot``` field.
+In the `Chatid` field, set your chat id.
+The default length of the alert is "short" (protocol name + source ip + link to the admin panel), "long alert" - all information about the message)
+
+##### Quickstart Gmail API configuring
+Go to [Quickstart Go](https://developers.google.com/gmail/api/quickstart/go)
+to get the ```Config.json``` file then put it at the ```emailalert/Config.json``` path and run tuktuk. After starting, follow the generated link and give permission to send emails. Enter the received token into the console. Restart the server.
+Yes, it's not convenient. In the future we will bring the configuration to the admin panel.
 
 #### Getting HTTPS certificate
 
