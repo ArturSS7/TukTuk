@@ -8,6 +8,7 @@ type InitStruct struct {
 	DomainConfig     Domain
 	EmailAlert       EmailAlertSetting
 	HttpsCertPath    HttpsConfig
+	DiscordAlert     DiscordAlertSetting
 }
 
 type TelegramSetting struct {
@@ -39,4 +40,10 @@ type EmailAlertSetting struct {
 type HttpsConfig struct {
 	CertFile string `json:"cert_file"`
 	KeyFile  string `json:"key_file"`
+}
+
+type DiscordAlertSetting struct {
+	WebHook     string `json:"WebHook"`
+	Enabled     bool   `json:"enabled"`
+	LengthAlert string `json:"length_alert"`
 }
