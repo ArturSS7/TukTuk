@@ -4,6 +4,7 @@ package ldaplistener
 
 import (
 	"TukTuk/database"
+	"TukTuk/discordbot"
 	"TukTuk/emailalert"
 	"TukTuk/telegrambot"
 	"fmt"
@@ -60,8 +61,11 @@ func logLDAP(dn, remouteAddr string) {
 		log.Println(err)
 	}
 
-	//Send Alert to telegram
+	//Send alert to Telegram
 	telegrambot.BotSendAlert(dn, remouteAddr, time.Now().String(), "LDAP", lastInsertId)
-	//Send Alert to email
+	//Send alert to email
 	emailalert.SendEmailAlert("LDAP Alert", "Remoute Address: "+remouteAddr+"\n"+dn+"\n"+time.Now().String())
+	//Send alert to Discord
+	discordbot.BotSendAlert(dn, remouteAddr, time.Now().String(), "LDAP", lastInsertId)
+
 }
