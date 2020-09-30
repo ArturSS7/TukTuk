@@ -2,6 +2,7 @@ package smtp
 
 import (
 	"TukTuk/database"
+	"TukTuk/discordbot"
 	"TukTuk/emailalert"
 	"TukTuk/telegrambot"
 	"crypto/tls"
@@ -1021,11 +1022,14 @@ func logSMTP(db *sql.DB, RemoteAddr string) {
 	if err != nil {
 		log.Fatal(err)
 	}
-  
-	//Send Alert to telegram
+
+	//Send alert to Telegram
 	telegrambot.BotSendAlert(DomainData+"\n "+Data_, RemoteAddr, time.Now().String(), "SMTP", lastInsertId)
-	//Send Alert to email
+	//Send alert to email
 	emailalert.SendEmailAlert("SMTP Alert", "Remoute Address: "+RemoteAddr+"\n+"+DomainData+"\n "+Data_+"\n"+time.Now().String())
+	//Send alert to Discord
+	discordbot.BotSendAlert(DomainData+"\n "+Data_, RemoteAddr, time.Now().String(), "SMTP", lastInsertId)
+
 }
 
 func DomainParse(rcpt string) string {

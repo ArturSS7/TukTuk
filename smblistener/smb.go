@@ -2,6 +2,7 @@ package smblistener
 
 import (
 	"TukTuk/database"
+	"TukTuk/discordbot"
 	"TukTuk/emailalert"
 	"TukTuk/telegrambot"
 	"database/sql"
@@ -40,10 +41,13 @@ func acceptSMB(c echo.Context) error {
 	cc := c.(*database.DBContext)
 	var lastInsertId int64 = 0
 	err := cc.Db.QueryRow("insert into smb(data, source_ip, time) values ($1, $2, $3) RETURNING id", fmt.Sprintf("%v", m["data"]), fmt.Sprintf("%v", m["source_ip"]), time.Now().String()).Scan(&lastInsertId)
-	//Send Alert to telegram
+	//Send alert to Telegram
 	telegrambot.BotSendAlert(fmt.Sprintf("%v", m["data"]), fmt.Sprintf("%v", m["source_ip"]), time.Now().String(), "SMB", lastInsertId)
-	//Send Alert to email
+	//Send alert to email
 	emailalert.SendEmailAlert("SMB Alert", fmt.Sprintf("%v", m["source_ip"])+"\n\n"+fmt.Sprintf("%v", m["data"]))
+	//Send alert to Discord
+	discordbot.BotSendAlert(fmt.Sprintf("%v", m["data"]), fmt.Sprintf("%v", m["source_ip"]), time.Now().String(), "SMB", lastInsertId)
+
 	if err != nil {
 		log.Println(err)
 		return c.NoContent(500)

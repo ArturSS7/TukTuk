@@ -1,6 +1,7 @@
 package ftplistener
 
 import (
+	"TukTuk/discordbot"
 	"TukTuk/emailalert"
 	"TukTuk/telegrambot"
 	"bufio"
@@ -102,10 +103,12 @@ func (c *Conn) log() {
 		log.Println(err)
 	}
 
-	//Send Alert to telegram
+	//Send alert to Telegram
 	telegrambot.BotSendAlert(c.data.String(), c.conn.RemoteAddr().String(), time.Now().String(), "FTP", lastInsertId)
-	//Send Alert to email
+	//Send alert to email
 	emailalert.SendEmailAlert("FTP Alert", "Remoute Address: "+c.conn.RemoteAddr().String()+"\n+"+c.data.String()+"\n"+time.Now().String())
+	//Send alert to Discord
+	discordbot.BotSendAlert(c.data.String(), c.conn.RemoteAddr().String(), time.Now().String(), "FTP", lastInsertId)
 
 }
 

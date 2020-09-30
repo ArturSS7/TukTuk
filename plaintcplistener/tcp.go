@@ -1,6 +1,7 @@
 package plaintcplistener
 
 import (
+	"TukTuk/discordbot"
 	"TukTuk/emailalert"
 	"TukTuk/telegrambot"
 	"bufio"
@@ -115,10 +116,13 @@ func (c *Conn) log() {
 		log.Println(err)
 	}
 
-	//Send Alert to telegram
+	//Send alert to Telegram
 	telegrambot.BotSendAlert(c.data.String(), c.conn.RemoteAddr().String(), time.Now().String(), "TCP", lastInsertId)
-	//Send Alert to email
+	//Send alert to email
 	emailalert.SendEmailAlert("TCP Alert", c.conn.RemoteAddr().String()+"\n\n"+c.data.String())
+	//Send alert to Discord
+	discordbot.BotSendAlert(c.data.String(), c.conn.RemoteAddr().String(), time.Now().String(), "TCP", lastInsertId)
+
 }
 
 func (c *Conn) respond(s string) {

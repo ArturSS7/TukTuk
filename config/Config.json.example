@@ -21,6 +21,11 @@
     "length_alert": "Short",
     "enabled": true
   },
+  "DiscordAlert": {
+    "WebHook" : "link",
+    "enabled" : false,
+    "length_alert": "Short"
+  },
   "HttpsCertPath": {
     "cert_file": "/etc/letsencrypt/live/tt.pwn.bar-0001/fullchain.pem",
     "key_file": "/etc/letsencrypt/live/tt.pwn.bar-0001/privkey.pem"

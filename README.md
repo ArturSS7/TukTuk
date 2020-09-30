@@ -59,6 +59,12 @@ Set Telegram token in the ```TelegramBot``` field.
 In the `Chatid` field, set your chat id.
 The default length of the alert is "short" (protocol name + source ip + link to the admin panel), "long alert" - all information about the message)
 
+##### Discord Webhook configuring
+1. Go to ```Server settings``` -> ```Webhooks``` -> ```Create Webhook```.
+2. Setup name, avatar and the channel, where it will be posted. Copy Webhook URL. Do not share! Very dangerous!
+3. Click Save and then the Done button.
+
+Set Discord Webhook URL in the ```Webhook``` field.
 ##### Quickstart Gmail API configuring
 Go to [Quickstart Go](https://developers.google.com/gmail/api/quickstart/go)
 to get the ```Config.json``` file then put it at the ```emailalert/Config.json``` path and run tuktuk. After starting, follow the generated link and give permission to send emails. Enter the received token into the console. Restart the server.
@@ -87,6 +93,7 @@ After getting certificate put its path to the config file.
 ## Alerting 
 TukTuk is designed not only to log requests, but to alert in case of it. Current alert options are:
  - Telegram
+ - Discord Webhook
  - GMail
  
  Additional alert types can be added by writing a module. Feel free to make a pull request!

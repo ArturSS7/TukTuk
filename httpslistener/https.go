@@ -4,6 +4,7 @@ import (
 	"TukTuk/backend"
 	"TukTuk/config"
 	"TukTuk/database"
+	"TukTuk/discordbot"
 	"TukTuk/emailalert"
 	"TukTuk/telegrambot"
 	"bytes"
@@ -82,9 +83,12 @@ func handleHTTPS(c echo.Context) error {
 			log.Println(err)
 		}
 
-		//Send Alert to telegram
+		//Send alert to Telegram
 		telegrambot.BotSendAlert(html.EscapeString(request.String()), c.Request().RemoteAddr, time.Now().String(), "HTTPS", lastInsertId)
+		//Send alert to email
 		emailalert.SendEmailAlert("HTTPS Alert", "Remoute Address: "+c.Request().RemoteAddr+"\n+"+html.EscapeString(request.String())+"\n"+time.Now().String())
+		//Send alert to Disord
+		discordbot.BotSendAlert(html.EscapeString(request.String()), c.Request().RemoteAddr, time.Now().String(), "HTTPS", lastInsertId)
 
 	}
 	return c.String(200, backend.RandStringBytes(8))
