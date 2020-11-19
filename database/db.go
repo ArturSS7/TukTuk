@@ -1,6 +1,7 @@
 package database
 
 import (
+	"TukTuk/config"
 	"database/sql"
 	"fmt"
 
@@ -16,7 +17,8 @@ type DBContext struct {
 var DNSDB *sql.DB
 
 func Connect() *sql.DB {
-	db, err := sql.Open("postgres", "postgres://tuk:ZuppaSecurePwd@localhost/tuktuk?sslmode=disable")
+	ConnectString := "postgres://" + config.Settings.DBCredentials.Name + ":" + config.Settings.DBCredentials.Password + "@localhost/tuktuk?sslmode=disable"
+	db, err := sql.Open("postgres", ConnectString)
 	if err != nil {
 		panic(err)
 	}

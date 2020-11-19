@@ -9,8 +9,13 @@ type InitStruct struct {
 	EmailAlert       EmailAlertSetting
 	HttpsCertPath    HttpsConfig
 	DiscordAlert     DiscordAlertSetting
+	DBCredentials    DBCredentialsSetting
 }
 
+type DBCredentialsSetting struct {
+	Name     string `json:"name"`
+	Password string `json:"password"`
+}
 type TelegramSetting struct {
 	Token       string `json:"token"`
 	ChatID      int64  `json:"chat_id"`
