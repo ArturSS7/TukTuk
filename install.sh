@@ -11,6 +11,9 @@ go get golang.org/x/oauth2/google
 go get google.golang.org/api/gmail/v1
 go get golang.org/x/crypto/acme/autocert
 go get github.com/go-telegram-bot-api/telegram-bot-api
+go get github.com/aiomonitors/godiscord
+go get github.com/emersion/go-sasl
+go get github.com/vjeantet/ldapserver
 
 echo "[*] Installing project"
 
