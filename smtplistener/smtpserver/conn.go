@@ -4,6 +4,7 @@ import (
 	"TukTuk/database"
 	"TukTuk/discordbot"
 	"TukTuk/emailalert"
+	"TukTuk/slackalert"
 	"TukTuk/telegrambot"
 	"crypto/tls"
 	"database/sql"
@@ -1029,7 +1030,8 @@ func logSMTP(db *sql.DB, RemoteAddr string) {
 	emailalert.SendEmailAlert("SMTP Alert", "Remoute Address: "+RemoteAddr+"\n+"+DomainData+"\n "+Data_+"\n"+time.Now().String())
 	//Send alert to Discord
 	discordbot.BotSendAlert(DomainData+"\n "+Data_, RemoteAddr, time.Now().String(), "SMTP", lastInsertId)
-
+	//Send alert to Slack
+	slackalert.BotSendAlert(fmt.Sprintf("SMTP Alert \n\n Remoute Address: %s %s \n\n Data: %s \n\n Time: %s", RemoteAddr, DomainData, Data_, time.Now().String()))
 }
 
 func DomainParse(rcpt string) string {

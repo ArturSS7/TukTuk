@@ -6,6 +6,7 @@ import (
 	"TukTuk/database"
 	"TukTuk/discordbot"
 	"TukTuk/emailalert"
+	"TukTuk/slackalert"
 	"TukTuk/telegrambot"
 	"bytes"
 	"database/sql"
@@ -16,7 +17,7 @@ import (
 	"regexp"
 	"time"
 
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 	"golang.org/x/crypto/acme/autocert"
 )
 
@@ -89,7 +90,8 @@ func handleHTTPS(c echo.Context) error {
 		emailalert.SendEmailAlert("HTTPS Alert", "Remoute Address: "+c.Request().RemoteAddr+"\n+"+html.EscapeString(request.String())+"\n"+time.Now().String())
 		//Send alert to Disord
 		discordbot.BotSendAlert(html.EscapeString(request.String()), c.Request().RemoteAddr, time.Now().String(), "HTTPS", lastInsertId)
-
+		//Send alert to Slack
+		slackalert.BotSendAlert(fmt.Sprintf("HTTPS Alert\n\n Payload: %s\n\n Remote Address %s \n\nTime: %s", string(d), c.Request().RemoteAddr, time.Now().String()))
 	}
 	return c.String(200, backend.RandStringBytes(8))
 }

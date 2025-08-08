@@ -4,15 +4,16 @@ import (
 	"TukTuk/config"
 	"TukTuk/database"
 	"database/sql"
-	"golang.org/x/crypto/acme/autocert"
 	"html/template"
 	"io"
 	"log"
 	"strings"
 
+	"golang.org/x/crypto/acme/autocert"
+
 	"github.com/gorilla/sessions"
-	"github.com/labstack/echo"
 	"github.com/labstack/echo-contrib/session"
+	"github.com/labstack/echo/v4"
 )
 
 type Request struct {

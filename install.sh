@@ -14,6 +14,7 @@ go get github.com/go-telegram-bot-api/telegram-bot-api
 go get github.com/aiomonitors/godiscord
 go get github.com/emersion/go-sasl
 go get github.com/vjeantet/ldapserver
+go get github.com/ashwanthkumar/slack-go-webhook
 
 echo "[*] Installing project"
 

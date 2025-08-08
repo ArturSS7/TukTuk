@@ -3,6 +3,7 @@ package plaintcplistener
 import (
 	"TukTuk/discordbot"
 	"TukTuk/emailalert"
+	"TukTuk/slackalert"
 	"TukTuk/telegrambot"
 	"bufio"
 	"bytes"
@@ -122,7 +123,8 @@ func (c *Conn) log() {
 	emailalert.SendEmailAlert("TCP Alert", c.conn.RemoteAddr().String()+"\n\n"+c.data.String())
 	//Send alert to Discord
 	discordbot.BotSendAlert(c.data.String(), c.conn.RemoteAddr().String(), time.Now().String(), "TCP", lastInsertId)
-
+	//Send alert to slack
+	slackalert.BotSendAlert(fmt.Sprintf("TCP Alert\n\n Remote Address %s\n\n Time: %s", c.conn.RemoteAddr().String(), time.Now().String()))
 }
 
 func (c *Conn) respond(s string) {

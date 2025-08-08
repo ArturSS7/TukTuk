@@ -30,6 +30,12 @@
     "enabled" : false,
     "length_alert": "Short"
   },
+  "SlackAlert": {
+    "WebHook" : "link",
+    "enabled" : false,
+    "username": "",
+    "channel": ""
+  },
   "HttpsCertPath": {
     "cert_file": "/etc/letsencrypt/live/tt.pwn.bar-0001/fullchain.pem",
     "key_file": "/etc/letsencrypt/live/tt.pwn.bar-0001/privkey.pem"

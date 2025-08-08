@@ -5,6 +5,7 @@ import (
 	"TukTuk/database"
 	"TukTuk/discordbot"
 	"TukTuk/emailalert"
+	"TukTuk/slackalert"
 	"TukTuk/telegrambot"
 	"errors"
 	"fmt"
@@ -85,7 +86,7 @@ func HandlerUDP(w dns.ResponseWriter, req *dns.Msg) {
 	Handler(w, req)
 }
 
-func logDNS(query string, sourceIp string) {
+func logDNS(query string, sourceIp string, payload string) {
 	var lastInsertId int64 = 0
 	err := database.DNSDB.QueryRow("insert into dns (data, source_ip, time) values ($1, $2, $3)  RETURNING id", html.EscapeString(query), sourceIp, time.Now().String()).Scan(&lastInsertId)
 	if err != nil {
@@ -98,6 +99,8 @@ func logDNS(query string, sourceIp string) {
 	emailalert.SendEmailAlert("DNS Alert", "Remoute Address: "+sourceIp+"\n+"+html.EscapeString(query)+"\n"+time.Now().String())
 	//Send alert to Discord
 	discordbot.BotSendAlert(html.EscapeString(query), sourceIp, time.Now().String(), "DNS", lastInsertId)
+	//Send alert to Slack
+	slackalert.BotSendAlert(fmt.Sprintf("DNS ALERT\n\n Payload: %s\n\n Remote Address %s\n\n Time: %s", payload, sourceIp, time.Now().String()))
 
 }
 
@@ -136,7 +139,6 @@ func Handler(w dns.ResponseWriter, req *dns.Msg) {
 		var result bool
 		re := regexp.MustCompile(`([a-z0-9\-]+\.)` + domain)
 		d := re.Find([]byte(strings.ToLower(question.Name)))
-		fmt.Println(d)
 		rows, err := database.DNSDB.Query("select exists(select domain from dns_domains where (domain = $1 and delete_time > $2) or (domain=$1 and delete_time = 0))", d, time.Now().Unix())
 		if err != nil {
 			log.Println(err)
@@ -148,7 +150,7 @@ func Handler(w dns.ResponseWriter, req *dns.Msg) {
 			}
 		}
 		if result {
-			logDNS(req.String(), w.RemoteAddr().String())
+			logDNS(req.String(), w.RemoteAddr().String(), string(d))
 			answerQuery(m, true)
 		} else {
 			answerQuery(m, false)

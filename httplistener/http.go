@@ -6,6 +6,7 @@ import (
 	"TukTuk/database"
 	"TukTuk/discordbot"
 	"TukTuk/emailalert"
+	"TukTuk/slackalert"
 	"TukTuk/telegrambot"
 	"bytes"
 	"database/sql"
@@ -16,7 +17,7 @@ import (
 	"regexp"
 	"time"
 
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 )
 
 //start http server
@@ -90,6 +91,9 @@ func handleHTTP(c echo.Context) error {
 		emailalert.SendEmailAlert("HTTP Alert", "Remoute Address: "+c.Request().RemoteAddr+"\n+"+html.EscapeString(request.String())+"\n"+time.Now().String())
 		//Send Alert to Discord
 		discordbot.BotSendAlert(html.EscapeString(request.String()), c.Request().RemoteAddr, time.Now().String(), "HTTP", lastInsertId)
+		//Send Alert to Slack
+		slackalert.BotSendAlert(fmt.Sprintf("HTTP Alert\n\n Payload: %s \n\n Remote Address %s \n\n Time: %s", string(d), c.Request().RemoteAddr, time.Now().String()))
+
 	}
 	return c.String(200, backend.RandStringBytes(8))
 }

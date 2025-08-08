@@ -9,6 +9,7 @@ type InitStruct struct {
 	EmailAlert       EmailAlertSetting
 	HttpsCertPath    HttpsConfig
 	DiscordAlert     DiscordAlertSetting
+	SlackAlert       SlackAlertSetting
 	DBCredentials    DBCredentialsSetting
 }
 
@@ -51,4 +52,11 @@ type DiscordAlertSetting struct {
 	WebHook     string `json:"WebHook"`
 	Enabled     bool   `json:"enabled"`
 	LengthAlert string `json:"length_alert"`
+}
+
+type SlackAlertSetting struct {
+	WebHook  string `json:"WebHook"`
+	Enabled  bool   `json:"enabled"`
+	Username string `json:"username"`
+	Channel  string `json:"channel"`
 }

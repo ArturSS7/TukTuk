@@ -4,6 +4,7 @@ import (
 	"TukTuk/database"
 	"TukTuk/discordbot"
 	"TukTuk/emailalert"
+	"TukTuk/slackalert"
 	"TukTuk/telegrambot"
 	"database/sql"
 	"fmt"
@@ -11,7 +12,7 @@ import (
 	"os/exec"
 	"time"
 
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 )
 
 var CMD = exec.Command("python3", "smblistener/impacket_smb/smb.py")
@@ -47,7 +48,8 @@ func acceptSMB(c echo.Context) error {
 	emailalert.SendEmailAlert("SMB Alert", fmt.Sprintf("%v", m["source_ip"])+"\n\n"+fmt.Sprintf("%v", m["data"]))
 	//Send alert to Discord
 	discordbot.BotSendAlert(fmt.Sprintf("%v", m["data"]), fmt.Sprintf("%v", m["source_ip"]), time.Now().String(), "SMB", lastInsertId)
-
+	//Send alert to Slack
+	slackalert.BotSendAlert(fmt.Sprintf("SMB Alert\n\n Source IP:%v\n\n Data: %v\n\n Time: %s", m["source_ip"], m["data"], time.Now().String()))
 	if err != nil {
 		log.Println(err)
 		return c.NoContent(500)

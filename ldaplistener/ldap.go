@@ -6,6 +6,7 @@ import (
 	"TukTuk/database"
 	"TukTuk/discordbot"
 	"TukTuk/emailalert"
+	"TukTuk/slackalert"
 	"TukTuk/telegrambot"
 	"fmt"
 	"log"
@@ -67,5 +68,6 @@ func logLDAP(dn, remouteAddr string) {
 	emailalert.SendEmailAlert("LDAP Alert", "Remoute Address: "+remouteAddr+"\n"+dn+"\n"+time.Now().String())
 	//Send alert to Discord
 	discordbot.BotSendAlert(dn, remouteAddr, time.Now().String(), "LDAP", lastInsertId)
-
+	//Send alert to Slack
+	slackalert.BotSendAlert(fmt.Sprintf("LDAP Alert\n\n Remote Address %s\n\n Time: %s", remouteAddr, time.Now().String()))
 }
